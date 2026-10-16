@@ -5,6 +5,7 @@
 [![CI](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml/badge.svg)](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml)
 [![Tests: 149 passing](https://img.shields.io/badge/tests-149%20passing-2ea44f)](#tests-and-evidence)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
+[![Live demo](https://img.shields.io/badge/demo-kalyptra.vercel.app-black)](https://kalyptra.vercel.app)
 [![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](Cargo.toml)
 [![Zcash Shielded Assets: local regtest](https://img.shields.io/badge/Zcash%20Shielded%20Assets-local%20regtest-f4b728)](docs/API_NOTES.md)
 
@@ -18,11 +19,13 @@ every filled order moves, or nothing does. Built for the Zecathon, Private Marke
 
 *Sealed until close · public price · private participants · capped supply.*
 
-[Try the demo](#try-the-demo) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Run it](#run-it) · [Limits](#honest-limits)
+[Try the demo](https://kalyptra.vercel.app) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Run it](#run-it) · [Limits](#honest-limits)
 
 > **Status: a working prototype on a local regtest chain. Not audited. Do not use it with real assets.**
 
 ## Try the demo
+
+**Live: <https://kalyptra.vercel.app>**
 
 The page has a **sample-data mode**: no nodes, no chain, nothing to install on a server. It runs the whole
 round in your browser tab, with the same rules as the real system, including its refusals. A "Guided demo"
@@ -43,8 +46,9 @@ nodes, a Zcash regtest chain) runs from this repository, see [Run it](#run-it).
 
 ## Judge fast path
 
-There is no hosted version: settlement needs a swap-enabled Zcash node that runs only locally
-(ZSA swaps are not on any public network). Everything below runs on one machine.
+The hosted page at **<https://kalyptra.vercel.app>** runs the sample-data demo only: settlement needs a
+swap-enabled Zcash node that runs only locally (ZSA swaps are not on any public network), so the real
+system is not hosted. Everything below runs on one machine.
 
 | | |
 |---|---|
