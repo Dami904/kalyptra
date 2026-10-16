@@ -1,0 +1,20 @@
+Git tag: none
+Git commit: 45413e8a9159bfeb6a9ca829c72f315a49266bc6
+Using NetworkConfig: node_address = rpc.test-zsa.org ; node_port = 443 ; protocol = https
+2026-10-07T17:58:38.442193Z  INFO zcash_tx_tool::components::wallet: Loaded saved tree state at height 3625
+2026-10-07T17:58:38.503131Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-07T17:58:39.421699Z  INFO zcash_tx_tool::components::transactions: Stored head 3625 valid, resuming from 3626
+2026-10-07T17:58:52.246999Z  INFO zcash_tx_tool::components::transactions: Synced up to height 3633
+2026-10-07T17:58:52.247014Z  INFO zcash_tx_tool::components::transactions: Issue 1 asset
+2026-10-07T17:59:07.092657Z  INFO zcash_tx_tool::components::transactions: Build tx: e5b9acebff8af060bf9f542e39d5fdaf874154499506ae9d87db28ea21760863
+2026-10-07T17:59:07.222852Z  INFO zcash_tx_tool::commands::test_balances: === Initial balances ===
+2026-10-07T17:59:07.223006Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: f053ab2c
+2026-10-07T17:59:07.223015Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 0
+2026-10-07T17:59:08.467544Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"jsonrpc":"1.0","id":"zcash-tx-tool","result":nul...
+2026-10-07T17:59:08.467602Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3634
+2026-10-07T17:59:08.690971Z  INFO zcash_tx_tool::components::transactions: Stored head 3633 valid, resuming from 3634
+2026-10-07T17:59:10.917919Z  INFO zcash_tx_tool::components::transactions: Synced up to height 3634
+2026-10-07T17:59:10.960183Z  INFO zcash_tx_tool::commands::test_balances: === Balances after issue ===
+2026-10-07T17:59:10.960321Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: f053ab2c
+2026-10-07T17:59:10.960333Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 1
+EXIT=0

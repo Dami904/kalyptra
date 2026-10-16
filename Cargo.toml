@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = ["crates/kalyptra-tse", "crates/kalyptra-matcher", "crates/kalyptra-node"]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.85"
+publish = false
+license = "MIT"
+
+# Elliptic-curve arithmetic is far too slow unoptimized; keep our own code debuggable.
+[profile.dev.package."*"]
+opt-level = 3

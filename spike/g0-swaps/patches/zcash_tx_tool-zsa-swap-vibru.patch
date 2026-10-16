@@ -1,0 +1,577 @@
+diff --git a/src/commands.rs b/src/commands.rs
+index 2607361..6de0b94 100644
+--- a/src/commands.rs
++++ b/src/commands.rs
+@@ -15,11 +15,15 @@ mod test_asset_swaps;
+ mod test_balances;
+ mod test_orchard_zsa;
+ mod test_three_party;
++mod test_vibru_swaps;
++mod test_vibru_keys;
+ 
+ use crate::commands::clean::CleanCmd;
+ use crate::commands::test_asset_swaps::TestAssetSwapsCmd;
+ use crate::commands::test_orchard_zsa::TestOrchardZSACmd;
+ use crate::commands::test_three_party::TestThreePartyCmd;
++use crate::commands::test_vibru_swaps::TestVibruSwapsCmd;
++use crate::commands::test_vibru_keys::TestVibruKeysCmd;
+ use crate::config::AppConfig;
+ use abscissa_core::{Command, Configurable, FrameworkError, Runnable};
+ use std::path::PathBuf;
+@@ -33,6 +37,8 @@ pub enum AppCmd {
+     TestOrchardZSA(TestOrchardZSACmd),
+     TestAssetSwaps(TestAssetSwapsCmd),
+     TestThreeParty(TestThreePartyCmd),
++    TestVibruSwaps(TestVibruSwapsCmd),
++    TestVibruKeys(TestVibruKeysCmd),
+     Clean(CleanCmd),
+ }
+ 
+diff --git a/src/commands/test_vibru_keys.rs b/src/commands/test_vibru_keys.rs
+new file mode 100755
+index 0000000..832816c
+--- /dev/null
++++ b/src/commands/test_vibru_keys.rs
+@@ -0,0 +1,189 @@
++//! Vibru G0: SEPARATE-KEYS swap flow.
++//!
++//! Six independent wallets, each with its own random seed AND its own database file:
++//! issuer, seller1, seller2, buyer1, buyer2, matcher. Each party builds only its own
++//! action group with only its own wallet. The matcher wallet receives finished groups
++//! and assembles ONE transaction. Then two attacks by the matcher are tried:
++//!   A. build a group for a party's assets without that party's keys -> must fail
++//!   B. take a bigger fee than the parties agreed -> must fail (build or node)
++
++use crate::components::rpc_client::reqwest::ReqwestRpcClient;
++use crate::components::transactions::{
++    create_issue_transaction, create_transfer_to_address, matcher_assemble,
++    matcher_build_fee_group, mine, mine_block, party_build_leg, sync, sync_from_height, SwapLeg,
++};
++use crate::components::user::User;
++use crate::prelude::*;
++use abscissa_core::{Command, Runnable};
++use nonempty::NonEmpty;
++use orchard::issuance::compute_asset_desc_hash;
++use orchard::keys::Scope::External;
++use orchard::note::AssetBase;
++use std::panic::{catch_unwind, AssertUnwindSafe};
++
++/// Run the Vibru separate-keys swap test
++#[derive(clap::Parser, Command, Debug)]
++pub struct TestVibruKeysCmd {}
++
++fn wallet(name: &str, miner_seed: &String) -> User {
++    // each wallet gets its OWN database file, read when the wallet is created
++    // point DATABASE_URL at this wallet's own file (the crate forbids unsafe, so use dotenvy)
++    let envfile = format!("vk_{}.env", name);
++    std::fs::write(&envfile, format!("DATABASE_URL=vk_{}.sqlite
++", name)).unwrap();
++    dotenvy::from_path_override(&envfile).unwrap();
++    let mut w = User::random(miner_seed);
++    w.reset();
++    w
++}
++
++/// Try to build and mine a transaction. Returns true if it was stopped, either by a panic
++/// while building or by the node rejecting the block.
++fn chain_blocks(
++    rpc: &mut ReqwestRpcClient,
++    build: impl FnOnce() -> zcash_primitives::transaction::Transaction,
++) -> bool {
++    match catch_unwind(AssertUnwindSafe(build)) {
++        Err(_) => {
++            info!("  -> stopped while building");
++            true
++        }
++        Ok(tx) => match mine_block(rpc, vec![tx], false) {
++            Err(_) => {
++                info!("  -> stopped by the node (block rejected)");
++                true
++            }
++            Ok(_) => false,
++        },
++    }
++}
++
++fn bal(w: &mut User, asset: AssetBase) -> u64 {
++    let a = w.address_for_account(0, External);
++    w.balance(a, asset)
++}
++
++impl Runnable for TestVibruKeysCmd {
++    fn run(&self) {
++        let config = APP.config();
++        let mut rpc = ReqwestRpcClient::new(config.network.node_url());
++        let seed = &config.wallet.miner_seed_phrase;
++
++        let mut issuer = wallet("issuer", seed);
++        let mut s1 = wallet("s1", seed);
++        let mut s2 = wallet("s2", seed);
++        let mut b1 = wallet("b1", seed);
++        let mut b2 = wallet("b2", seed);
++        let mut m = wallet("m", seed);
++
++        let h = config.chain.nu7_activation_height;
++        sync_from_height(h, &mut issuer, &mut rpc);
++        sync_from_height(h, &mut s1, &mut rpc);
++        sync_from_height(h, &mut s2, &mut rpc);
++        sync_from_height(h, &mut b1, &mut rpc);
++        sync_from_height(h, &mut b2, &mut rpc);
++        sync_from_height(h, &mut m, &mut rpc);
++
++        macro_rules! sync_others {
++            () => {
++                sync(&mut s1, &mut rpc);
++                sync(&mut s2, &mut rpc);
++                sync(&mut b1, &mut rpc);
++                sync(&mut b2, &mut rpc);
++                sync(&mut m, &mut rpc);
++            };
++        }
++
++        // ----- issue ACME and vUSD (issuer only; the issuer also mines every block) -----
++        let e_hash = compute_asset_desc_hash(&NonEmpty::from_slice(b"ACME").unwrap());
++        let u_hash = compute_asset_desc_hash(&NonEmpty::from_slice(b"vUSD").unwrap());
++        let a0 = issuer.address_for_account(0, External);
++        let (tx, e) = create_issue_transaction(a0, 1000, e_hash, true, &mut issuer);
++        mine(&mut issuer, &mut rpc, vec![tx]).expect("mined");
++        sync_others!();
++        let a0 = issuer.address_for_account(0, External);
++        let (tx, u) = create_issue_transaction(a0, 100_000, u_hash, true, &mut issuer);
++        mine(&mut issuer, &mut rpc, vec![tx]).expect("mined");
++        sync_others!();
++
++        // ----- fund each party at ITS OWN wallet's address -----
++        let s1_addr = s1.address_for_account(0, External);
++        let s2_addr = s2.address_for_account(0, External);
++        let b1_addr = b1.address_for_account(0, External);
++        let b2_addr = b2.address_for_account(0, External);
++        for (addr, asset, amt) in [(s1_addr, e, 100u64), (s2_addr, e, 100), (b1_addr, u, 1000), (b2_addr, u, 1000)] {
++            let tx = create_transfer_to_address(0, addr, amt, asset, &mut issuer);
++            mine(&mut issuer, &mut rpc, vec![tx]).expect("mined");
++            sync_others!();
++        }
++        // each wallet sees ONLY its own holdings
++        assert_eq!(bal(&mut s1, e), 100);
++        assert_eq!(bal(&mut s2, e), 100);
++        assert_eq!(bal(&mut b1, u), 1000);
++        assert_eq!(bal(&mut b2, u), 1000);
++        assert_eq!(bal(&mut s1, u), 0);
++        assert_eq!(bal(&mut m, e), 0);
++        assert_eq!(bal(&mut m, u), 0);
++        info!("FUNDED: each wallet holds only its own assets (matcher holds none)");
++
++        // ===== ROUND 1: each party builds ITS OWN group; matcher only assembles =====
++        let g_s1 = party_build_leg(SwapLeg { account: 0, send_amount: 10, send_asset: e, recv_amount: 49, recv_asset: u }, &mut s1);
++        let g_s2 = party_build_leg(SwapLeg { account: 0, send_amount: 4, send_asset: e, recv_amount: 19, recv_asset: u }, &mut s2);
++        let g_b1 = party_build_leg(SwapLeg { account: 0, send_amount: 40, send_asset: u, recv_amount: 8, recv_asset: e }, &mut b1);
++        let g_b2 = party_build_leg(SwapLeg { account: 0, send_amount: 30, send_asset: u, recv_amount: 6, recv_asset: e }, &mut b2);
++        let g_m = matcher_build_fee_group(&[(u, 2)], 0, &mut m);
++        let tx = matcher_assemble(vec![g_s1, g_s2, g_b1, g_b2, g_m], &m);
++        mine(&mut issuer, &mut rpc, vec![tx]).expect("round 1 mined");
++        sync_others!();
++        assert_eq!(bal(&mut s1, e), 90);
++        assert_eq!(bal(&mut s1, u), 49);
++        assert_eq!(bal(&mut s2, e), 96);
++        assert_eq!(bal(&mut s2, u), 19);
++        assert_eq!(bal(&mut b1, e), 8);
++        assert_eq!(bal(&mut b1, u), 960);
++        assert_eq!(bal(&mut b2, e), 6);
++        assert_eq!(bal(&mut b2, u), 970);
++        assert_eq!(bal(&mut m, u), 2);
++        info!("ROUND 1 PASSED: separate wallets, one transaction, matcher took only its 2 vUSD fee");
++
++        // ===== ATTACK A: matcher tries to build a group that spends a seller's ACME =====
++        // It holds no ACME and none of the seller's keys. Blocked either while building the
++        // group, while building the transaction, or by the node rejecting the block.
++        let blocked_a = chain_blocks(&mut rpc, || {
++            let g = party_build_leg(SwapLeg { account: 0, send_amount: 10, send_asset: e, recv_amount: 49, recv_asset: u }, &mut m);
++            matcher_assemble(vec![g], &m)
++        });
++        assert!(blocked_a, "matcher spent ACME it does not hold and the chain accepted it!");
++        info!("ATTACK A BLOCKED: matcher cannot spend assets it does not hold");
++
++        // ===== ATTACK B: matcher takes a bigger fee (2) than the parties agreed (1) =====
++        let g_s1 = party_build_leg(SwapLeg { account: 0, send_amount: 3, send_asset: e, recv_amount: 14, recv_asset: u }, &mut s1);
++        let g_b2 = party_build_leg(SwapLeg { account: 0, send_amount: 15, send_asset: u, recv_amount: 3, recv_asset: e }, &mut b2);
++        let g_greedy = matcher_build_fee_group(&[(u, 2)], 0, &mut m); // parties agreed fee 1
++        let rejected = chain_blocks(&mut rpc, || matcher_assemble(vec![g_s1, g_b2, g_greedy], &m));
++        assert!(rejected, "matcher took an unagreed fee and the chain accepted it!");
++        info!("ATTACK B BLOCKED: an unagreed fee cannot be taken");
++        sync(&mut issuer, &mut rpc);
++        sync_others!();
++        // nothing moved
++        assert_eq!(bal(&mut s1, e), 90);
++        assert_eq!(bal(&mut b2, u), 970);
++        assert_eq!(bal(&mut m, u), 2);
++
++        // ===== RECOVERY: the honest version of that same round still works afterwards =====
++        let g_s1 = party_build_leg(SwapLeg { account: 0, send_amount: 3, send_asset: e, recv_amount: 14, recv_asset: u }, &mut s1);
++        let g_b2 = party_build_leg(SwapLeg { account: 0, send_amount: 15, send_asset: u, recv_amount: 3, recv_asset: e }, &mut b2);
++        let g_m = matcher_build_fee_group(&[(u, 1)], 0, &mut m);
++        let tx = matcher_assemble(vec![g_s1, g_b2, g_m], &m);
++        mine(&mut issuer, &mut rpc, vec![tx]).expect("recovery round mined");
++        sync_others!();
++        assert_eq!(bal(&mut s1, e), 87);
++        assert_eq!(bal(&mut s1, u), 63);
++        assert_eq!(bal(&mut b2, e), 9);
++        assert_eq!(bal(&mut b2, u), 955);
++        assert_eq!(bal(&mut m, u), 3);
++        info!("RECOVERY PASSED: honest round after the blocked attack");
++
++        info!("ALL SEPARATE-KEYS TESTS PASSED");
++    }
++}
+diff --git a/src/commands/test_vibru_swaps.rs b/src/commands/test_vibru_swaps.rs
+new file mode 100755
+index 0000000..6f4b37a
+--- /dev/null
++++ b/src/commands/test_vibru_swaps.rs
+@@ -0,0 +1,131 @@
++//! Vibru G0 swap tests.
++//!
++//! 1. A whole auction round (2 sellers + 2 buyers at one clearing price) settles
++//!    in ONE transaction.
++//! 2. A different price and odd sizes (with change outputs) settle correctly.
++//! 3. The matcher account really receives the fees (checked by balances).
++//! 4. Fees can be taken in both assets at once.
++//!
++//! Accounts: 0 issuer, 1-2 sellers, 3-4 buyers, 5 matcher.
++//! Assets: ACME (equity), vUSD (quote).
++
++use crate::commands::test_balances::{check_balances, print_balances, TestBalances};
++use crate::components::rpc_client::reqwest::ReqwestRpcClient;
++use crate::components::transactions::{
++    create_batch_swap_transaction, create_issue_transaction, create_transfer_transaction, mine,
++    sync_from_height, SwapLeg,
++};
++use crate::components::user::User;
++use crate::prelude::*;
++use abscissa_core::{Command, Runnable};
++use nonempty::NonEmpty;
++use orchard::issuance::compute_asset_desc_hash;
++use orchard::keys::Scope::External;
++
++/// Run the Vibru swap tests
++#[derive(clap::Parser, Command, Debug)]
++pub struct TestVibruSwapsCmd {}
++
++impl Runnable for TestVibruSwapsCmd {
++    fn run(&self) {
++        let config = APP.config();
++        let mut rpc = ReqwestRpcClient::new(config.network.node_url());
++        let mut st = User::random(&config.wallet.miner_seed_phrase);
++        st.reset();
++
++        let n: u32 = 6;
++        let (issuer, s1, s2, b1, b2, m) = (0u32, 1u32, 2u32, 3u32, 4u32, 5u32);
++
++        sync_from_height(config.chain.nu7_activation_height, &mut st, &mut rpc);
++
++        // ----------------------------- issue two assets -----------------------------
++        let e_hash = compute_asset_desc_hash(&NonEmpty::from_slice(b"ACME").unwrap());
++        let u_hash = compute_asset_desc_hash(&NonEmpty::from_slice(b"vUSD").unwrap());
++
++        let addr = st.address_for_account(issuer, External);
++        let (tx, e) = create_issue_transaction(addr, 1000, e_hash, true, &mut st);
++        mine(&mut st, &mut rpc, vec![tx]).expect("mined");
++        let addr = st.address_for_account(issuer, External);
++        let (tx, u) = create_issue_transaction(addr, 100_000, u_hash, true, &mut st);
++        mine(&mut st, &mut rpc, vec![tx]).expect("mined");
++
++        // ----------------------------- fund the investors ----------------------------
++        for (to, asset, amount) in [(s1, e, 100u64), (s2, e, 100), (b1, u, 1000), (b2, u, 1000)] {
++            let tx = create_transfer_transaction(issuer, to, amount, asset, &mut st);
++            mine(&mut st, &mut rpc, vec![tx]).expect("mined");
++        }
++
++        let mut exp_e = TestBalances::get_asset_balances(e, n, &mut st);
++        let mut exp_u = TestBalances::get_asset_balances(u, n, &mut st);
++        print_balances("=== ACME after funding ===", e, n, &mut st);
++        print_balances("=== vUSD after funding ===", u, n, &mut st);
++        check_balances(e, &exp_e, &mut st, n);
++        check_balances(u, &exp_u, &mut st, n);
++
++        // ---------- TEST 1: one auction round, 2 sellers + 2 buyers, price 5, ONE tx ----------
++        // sellers: s1 sells 10 ACME, s2 sells 4 ACME. buyers: b1 buys 8, b2 buys 6.
++        // Total ACME sent 14 = received 14. vUSD: buyers send 40+30=70; sellers receive
++        // (50-1)+(20-1)=68; the matcher keeps 2.
++        let legs = [
++            SwapLeg { account: s1, send_amount: 10, send_asset: e, recv_amount: 49, recv_asset: u },
++            SwapLeg { account: s2, send_amount: 4, send_asset: e, recv_amount: 19, recv_asset: u },
++            SwapLeg { account: b1, send_amount: 40, send_asset: u, recv_amount: 8, recv_asset: e },
++            SwapLeg { account: b2, send_amount: 30, send_asset: u, recv_amount: 6, recv_asset: e },
++        ];
++        let tx = create_batch_swap_transaction(&legs, m, &[(u, 2)], &mut st);
++        mine(&mut st, &mut rpc, vec![tx]).expect("round 1 mined");
++        exp_e.decrement(s1, 10);
++        exp_e.decrement(s2, 4);
++        exp_e.increment(b1, 8);
++        exp_e.increment(b2, 6);
++        exp_u.increment(s1, 49);
++        exp_u.increment(s2, 19);
++        exp_u.decrement(b1, 40);
++        exp_u.decrement(b2, 30);
++        exp_u.increment(m, 2);
++        check_balances(e, &exp_e, &mut st, n);
++        check_balances(u, &exp_u, &mut st, n);
++        print_balances("=== TEST 1 (4-leg round, one tx): ACME ===", e, n, &mut st);
++        print_balances("=== TEST 1 (4-leg round, one tx): vUSD ===", u, n, &mut st);
++
++        // ---------- TEST 2: different price (3), odd size (7), uses change outputs ----------
++        // s1 sells 7 ACME to b2 at price 3: b2 sends 21 vUSD, s1 receives 19, matcher keeps 2.
++        let legs = [
++            SwapLeg { account: s1, send_amount: 7, send_asset: e, recv_amount: 19, recv_asset: u },
++            SwapLeg { account: b2, send_amount: 21, send_asset: u, recv_amount: 7, recv_asset: e },
++        ];
++        let tx = create_batch_swap_transaction(&legs, m, &[(u, 2)], &mut st);
++        mine(&mut st, &mut rpc, vec![tx]).expect("test 2 mined");
++        exp_e.decrement(s1, 7);
++        exp_e.increment(b2, 7);
++        exp_u.increment(s1, 19);
++        exp_u.decrement(b2, 21);
++        exp_u.increment(m, 2);
++        check_balances(e, &exp_e, &mut st, n);
++        check_balances(u, &exp_u, &mut st, n);
++        print_balances("=== TEST 2 (price 3, size 7): ACME ===", e, n, &mut st);
++        print_balances("=== TEST 2 (price 3, size 7): vUSD ===", u, n, &mut st);
++
++        // ---------- TEST 4: fees in BOTH assets (matcher collects ACME and vUSD) ----------
++        // s2 sells 5 ACME, receives 14 vUSD. b1 sends 15 vUSD, receives 4 ACME.
++        // ACME: 5 = 4 + fee 1. vUSD: 15 = 14 + fee 1.
++        let legs = [
++            SwapLeg { account: s2, send_amount: 5, send_asset: e, recv_amount: 14, recv_asset: u },
++            SwapLeg { account: b1, send_amount: 15, send_asset: u, recv_amount: 4, recv_asset: e },
++        ];
++        let tx = create_batch_swap_transaction(&legs, m, &[(e, 1), (u, 1)], &mut st);
++        mine(&mut st, &mut rpc, vec![tx]).expect("test 4 mined");
++        exp_e.decrement(s2, 5);
++        exp_e.increment(b1, 4);
++        exp_e.increment(m, 1);
++        exp_u.increment(s2, 14);
++        exp_u.decrement(b1, 15);
++        exp_u.increment(m, 1);
++        check_balances(e, &exp_e, &mut st, n);
++        check_balances(u, &exp_u, &mut st, n);
++        print_balances("=== TEST 4 (fees in both assets): ACME ===", e, n, &mut st);
++        print_balances("=== TEST 4 (fees in both assets): vUSD ===", u, n, &mut st);
++
++        info!("ALL VIBRU SWAP TESTS PASSED");
++    }
++}
+diff --git a/src/components/transactions.rs b/src/components/transactions.rs
+index b77838d..efad2fc 100644
+--- a/src/components/transactions.rs
++++ b/src/components/transactions.rs
+@@ -419,7 +419,7 @@ pub fn create_swap_transaction_with_matcher(
+     build_tx(tx, &wallet.transparent_signing_set(), &[])
+ }
+ 
+-fn create_action_group(
++pub(crate) fn create_action_group(
+     account_index: u32,
+     amount_to_send: u64,
+     asset_to_send: AssetBase,
+@@ -645,7 +645,7 @@ pub fn template_into_proposal(
+     }
+ }
+ 
+-fn create_tx(wallet: &User) -> Builder<'_, RegtestNetwork, ()> {
++pub(crate) fn create_tx(wallet: &User) -> Builder<'_, RegtestNetwork, ()> {
+     let build_config = BuildConfig::Swap {
+         sapling_anchor: None,
+         orchard_anchor: wallet.orchard_anchor(),
+@@ -658,7 +658,7 @@ fn create_tx(wallet: &User) -> Builder<'_, RegtestNetwork, ()> {
+     tx
+ }
+ 
+-fn build_tx(
++pub(crate) fn build_tx(
+     builder: Builder<'_, RegtestNetwork, ()>,
+     tss: &TransparentSigningSet,
+     orchard_saks: &[SpendAuthorizingKey],
+@@ -688,3 +688,184 @@ fn build_tx(
+         }
+     }
+ }
++
++// ---------------------------------------------------------------------------
++// Vibru G0 additions: batch swap (many legs + matcher fees in ONE transaction)
++// ---------------------------------------------------------------------------
++
++/// One party's leg in a batch swap: sends `send_amount` of `send_asset` and
++/// receives `recv_amount` of `recv_asset`.
++#[derive(Clone, Copy)]
++pub struct SwapLeg {
++    pub account: u32,
++    pub send_amount: u64,
++    pub send_asset: AssetBase,
++    pub recv_amount: u64,
++    pub recv_asset: AssetBase,
++}
++
++/// Build ONE transaction that settles any number of legs plus a matcher that
++/// collects `fees`. Per asset, the total sent must equal the total received
++/// plus the fees; the function asserts this before building.
++pub fn create_batch_swap_transaction(
++    legs: &[SwapLeg],
++    matcher: u32,
++    fees: &[(AssetBase, u64)],
++    wallet: &mut User,
++) -> Transaction {
++    use std::collections::HashMap;
++    let mut net: HashMap<[u8; 32], i128> = HashMap::new();
++    for l in legs {
++        *net.entry(l.send_asset.to_bytes()).or_default() += l.send_amount as i128;
++        *net.entry(l.recv_asset.to_bytes()).or_default() -= l.recv_amount as i128;
++    }
++    for (a, f) in fees {
++        *net.entry(a.to_bytes()).or_default() -= *f as i128;
++    }
++    assert!(
++        net.values().all(|v| *v == 0),
++        "batch swap does not balance per asset"
++    );
++    info!(
++        "Batch swap: {} legs, {} fee assets, one transaction",
++        legs.len(),
++        fees.len()
++    );
++
++    let mut groups = Vec::new();
++    for l in legs {
++        groups.push(create_action_group(
++            l.account,
++            l.send_amount,
++            l.send_asset,
++            l.recv_amount,
++            l.recv_asset,
++            wallet,
++        ));
++    }
++    let fee_group = create_matcher_fee_action_group(matcher, fees, wallet);
++
++    let mut tx = create_tx(wallet);
++    for (ag, bsk) in groups {
++        tx.add_action_group::<FeeError>(ag, bsk).unwrap();
++    }
++    let (ag, bsk) = fee_group;
++    tx.add_action_group::<FeeError>(ag, bsk).unwrap();
++    build_tx(tx, &wallet.transparent_signing_set(), &[])
++}
++
++pub(crate) fn create_matcher_fee_action_group(
++    matcher_index: u32,
++    fees: &[(AssetBase, u64)],
++    wallet: &mut User,
++) -> (
++    Bundle<ActionGroupAuthorized, ZatBalance, OrchardZSA>,
++    SigningKey<Binding>,
++) {
++    let ovk = wallet.orchard_ovk(matcher_index);
++    let address = wallet.address_for_account(matcher_index, External);
++
++    let mut ag_builder =
++        orchard::builder::Builder::new(BundleType::DEFAULT_SWAP, wallet.orchard_anchor().unwrap());
++
++    for (asset, amount) in fees {
++        let reference_note = wallet.get_randomized_reference_note(*asset).unwrap();
++        ag_builder
++            .add_reference_note(
++                ReferenceKeys::fvk(),
++                reference_note.note,
++                reference_note.merkle_path,
++            )
++            .unwrap();
++        ag_builder
++            .add_output(
++                Some(ovk.clone()),
++                address,
++                NoteValue::from_raw(*amount),
++                *asset,
++                [0; 512],
++            )
++            .unwrap();
++    }
++
++    let (action_group, _) = ag_builder.build_action_group(OsRng, 10).unwrap();
++    let commitment = action_group.action_group_commitment().into();
++    action_group
++        .create_proof(
++            &orchard::circuit::ProvingKey::build::<OrchardZSA>(),
++            &mut OsRng,
++        )
++        .unwrap()
++        .apply_signatures_for_action_group(OsRng, commitment, &[])
++        .unwrap()
++}
++
++// ---------------------------------------------------------------------------
++// Vibru G0 additions: separate-keys flow. Each party builds ITS OWN action group
++// with ONLY its own wallet; the matcher wallet only assembles finished groups.
++// ---------------------------------------------------------------------------
++
++pub type PartyGroup = (
++    Bundle<ActionGroupAuthorized, ZatBalance, OrchardZSA>,
++    SigningKey<Binding>,
++);
++
++/// Run by a PARTY, with that party's wallet only (the only place its spending
++/// keys are used).
++pub fn party_build_leg(leg: SwapLeg, wallet: &mut User) -> PartyGroup {
++    create_action_group(
++        leg.account,
++        leg.send_amount,
++        leg.send_asset,
++        leg.recv_amount,
++        leg.recv_asset,
++        wallet,
++    )
++}
++
++/// Run by the MATCHER, with the matcher's wallet only: its own fee group.
++pub fn matcher_build_fee_group(fees: &[(AssetBase, u64)], matcher: u32, wallet: &mut User) -> PartyGroup {
++    create_matcher_fee_action_group(matcher, fees, wallet)
++}
++
++/// Run by the MATCHER: assemble finished groups from the parties into one
++/// transaction. Needs no party keys.
++pub fn matcher_assemble(groups: Vec<PartyGroup>, wallet: &User) -> Transaction {
++    let mut tx = create_tx(wallet);
++    for (ag, bsk) in groups {
++        tx.add_action_group::<FeeError>(ag, bsk).unwrap();
++    }
++    build_tx(tx, &wallet.transparent_signing_set(), &[])
++}
++
++/// Transfer to an address that belongs to ANOTHER wallet.
++pub fn create_transfer_to_address(
++    sender_index: u32,
++    recipient: Address,
++    amount: u64,
++    asset: AssetBase,
++    wallet: &mut User,
++) -> Transaction {
++    info!("Transfer {} units to an external address", amount);
++    let sender = wallet.address_for_account(sender_index, External);
++    let ovk = wallet.orchard_ovk(sender_index);
++    let inputs = wallet.select_spendable_notes(sender, amount, asset);
++    let total_inputs_amount = inputs.iter().fold(0, |acc, input| acc + input.note.value().inner());
++    let mut tx = create_tx(wallet);
++    let orchard_keys: Vec<SpendAuthorizingKey> = inputs
++        .into_iter()
++        .map(|input| {
++            tx.add_orchard_spend::<FeeError>((&input.sk).into(), input.note, input.merkle_path)
++                .unwrap();
++            SpendAuthorizingKey::from(&input.sk)
++        })
++        .collect();
++    tx.add_orchard_output::<FeeError>(Some(ovk.clone()), recipient, amount, asset, MemoBytes::empty())
++        .unwrap();
++    let change_amount = total_inputs_amount - amount;
++    if change_amount != 0 {
++        tx.add_orchard_output::<FeeError>(Some(ovk), sender, change_amount, asset, MemoBytes::empty())
++            .unwrap();
++    }
++    build_tx(tx, &wallet.transparent_signing_set(), orchard_keys.as_slice())
++}

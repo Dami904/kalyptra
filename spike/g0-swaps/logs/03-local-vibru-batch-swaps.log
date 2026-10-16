@@ -1,0 +1,131 @@
+Git tag: none
+Git commit: a344fde10418ac824bf66662bb3a39dba61b213f
+Using NetworkConfig: node_address = 127.0.0.1 ; node_port = 18232 ; protocol = http
+2026-10-08T16:02:25.823672Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:02:25.826197Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:02:25.838223Z  INFO zcash_tx_tool::components::transactions: Issue 1000 asset
+2026-10-08T16:02:31.304149Z  INFO zcash_tx_tool::components::transactions: Build tx: 0f31e67bc89ea13ba4c96dba4e3e8c9bae087f3f606eb163b4d0719ae6b9f55c
+2026-10-08T16:02:33.332563Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:02:33.332595Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:02:33.340526Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:02:33.375524Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:02:33.375527Z  INFO zcash_tx_tool::components::transactions: Issue 100000 asset
+2026-10-08T16:02:39.369724Z  INFO zcash_tx_tool::components::transactions: Build tx: 6cb866053a5257fd72baf86400597dccc42598d1ba14bf0252272f6fec1774d8
+2026-10-08T16:02:39.627380Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:02:39.627403Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:02:39.633325Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:02:39.669953Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:02:39.669957Z  INFO zcash_tx_tool::components::transactions: Transfer 100 units
+2026-10-08T16:02:39.687143Z  INFO zcash_tx_tool::components::transactions: Total inputs amount: 1000, amount to transfer: 100
+2026-10-08T16:02:46.035332Z  INFO zcash_tx_tool::components::transactions: Build tx: 6f8c8855a3b972ecf3a4f89b47cfb913496a27c430b691f1ee1920f1ff87d98b
+2026-10-08T16:02:46.288181Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:02:46.288210Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:02:46.338825Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:02:46.338828Z  INFO zcash_tx_tool::components::transactions: Transfer 100 units
+2026-10-08T16:02:46.358117Z  INFO zcash_tx_tool::components::transactions: Total inputs amount: 900, amount to transfer: 100
+2026-10-08T16:02:52.710530Z  INFO zcash_tx_tool::components::transactions: Build tx: 734851c3103e8e797f235512bceeae86450f08626915e127fe12b2ff4dee50b1
+2026-10-08T16:02:52.936515Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:02:52.936541Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:02:52.999516Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:02:52.999519Z  INFO zcash_tx_tool::components::transactions: Transfer 1000 units
+2026-10-08T16:02:53.021521Z  INFO zcash_tx_tool::components::transactions: Total inputs amount: 100000, amount to transfer: 1000
+2026-10-08T16:03:03.140874Z  INFO zcash_tx_tool::components::transactions: Build tx: 117a2c15049eea0fd607e27219ef04c7105cf5d4d59a70a5be735e43a0bcd374
+2026-10-08T16:03:03.384952Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:03:03.384996Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:03:03.447905Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:03:03.447923Z  INFO zcash_tx_tool::components::transactions: Transfer 1000 units
+2026-10-08T16:03:03.485033Z  INFO zcash_tx_tool::components::transactions: Total inputs amount: 99000, amount to transfer: 1000
+2026-10-08T16:03:11.548672Z  INFO zcash_tx_tool::components::transactions: Build tx: f8f561eb9e50128f4bdffa101a9eee42e5bec5292bc35166c5d3b3867cf5a713
+2026-10-08T16:03:11.790215Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:03:11.790251Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:03:11.845166Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:03:11.858295Z  INFO zcash_tx_tool::commands::test_balances: === ACME after funding ===
+2026-10-08T16:03:11.858569Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: ac0e729f
+2026-10-08T16:03:11.858574Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 800
+2026-10-08T16:03:11.858576Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 100
+2026-10-08T16:03:11.858577Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 100
+2026-10-08T16:03:11.858579Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 0
+2026-10-08T16:03:11.858581Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 0
+2026-10-08T16:03:11.858582Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 0
+2026-10-08T16:03:11.858584Z  INFO zcash_tx_tool::commands::test_balances: === vUSD after funding ===
+2026-10-08T16:03:11.858833Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: e6ede36b
+2026-10-08T16:03:11.858836Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 98000
+2026-10-08T16:03:11.858838Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 0
+2026-10-08T16:03:11.858840Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 0
+2026-10-08T16:03:11.858841Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 1000
+2026-10-08T16:03:11.858843Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 1000
+2026-10-08T16:03:11.858844Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 0
+2026-10-08T16:03:11.859362Z  INFO zcash_tx_tool::components::transactions: Batch swap: 4 legs, 1 fee assets, one transaction
+2026-10-08T16:03:47.307196Z  INFO zcash_tx_tool::components::transactions: Build tx: 64561e89dc2008759415d398f427624000719e4db5fcca002ab893980b5736a1
+2026-10-08T16:03:47.519740Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:03:47.519771Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:03:47.759921Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:03:47.760361Z  INFO zcash_tx_tool::commands::test_balances: === TEST 1 (4-leg round, one tx): ACME ===
+2026-10-08T16:03:47.760592Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: ac0e729f
+2026-10-08T16:03:47.760596Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 800
+2026-10-08T16:03:47.760597Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 90
+2026-10-08T16:03:47.760599Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 96
+2026-10-08T16:03:47.760600Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 8
+2026-10-08T16:03:47.760602Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 6
+2026-10-08T16:03:47.760603Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 0
+2026-10-08T16:03:47.760605Z  INFO zcash_tx_tool::commands::test_balances: === TEST 1 (4-leg round, one tx): vUSD ===
+2026-10-08T16:03:47.760865Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: e6ede36b
+2026-10-08T16:03:47.760872Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 98000
+2026-10-08T16:03:47.760874Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 49
+2026-10-08T16:03:47.760875Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 19
+2026-10-08T16:03:47.760877Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 960
+2026-10-08T16:03:47.760878Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 970
+2026-10-08T16:03:47.760879Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 2
+2026-10-08T16:03:47.760934Z  INFO zcash_tx_tool::components::transactions: Batch swap: 2 legs, 1 fee assets, one transaction
+2026-10-08T16:04:07.859315Z  INFO zcash_tx_tool::components::transactions: Build tx: 10d2d31626f60401945a4a712b2bf3896edd8b06a6e1e8651dc098d35aa5ec5a
+2026-10-08T16:04:08.074890Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:04:08.074920Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:04:08.227861Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:04:08.228410Z  INFO zcash_tx_tool::commands::test_balances: === TEST 2 (price 3, size 7): ACME ===
+2026-10-08T16:04:08.228762Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: ac0e729f
+2026-10-08T16:04:08.228771Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 800
+2026-10-08T16:04:08.228773Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 83
+2026-10-08T16:04:08.228775Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 96
+2026-10-08T16:04:08.228777Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 8
+2026-10-08T16:04:08.228779Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 13
+2026-10-08T16:04:08.228781Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 0
+2026-10-08T16:04:08.228783Z  INFO zcash_tx_tool::commands::test_balances: === TEST 2 (price 3, size 7): vUSD ===
+2026-10-08T16:04:08.229098Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: e6ede36b
+2026-10-08T16:04:08.229102Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 98000
+2026-10-08T16:04:08.229104Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 68
+2026-10-08T16:04:08.229106Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 19
+2026-10-08T16:04:08.229108Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 960
+2026-10-08T16:04:08.229110Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 949
+2026-10-08T16:04:08.229111Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 4
+2026-10-08T16:04:08.229197Z  INFO zcash_tx_tool::components::transactions: Batch swap: 2 legs, 2 fee assets, one transaction
+2026-10-08T16:04:27.167568Z  INFO zcash_tx_tool::components::transactions: Build tx: 6c09d64ca48143bf5dbe3f3b1a66a667190d2b2200f5a682f7b344980f377cf7
+2026-10-08T16:04:27.372177Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:04:27.372338Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 9
+2026-10-08T16:04:27.529372Z  INFO zcash_tx_tool::components::transactions: No block at height 10. Synced up to height 9
+2026-10-08T16:04:27.529847Z  INFO zcash_tx_tool::commands::test_balances: === TEST 4 (fees in both assets): ACME ===
+2026-10-08T16:04:27.530095Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: ac0e729f
+2026-10-08T16:04:27.530099Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 800
+2026-10-08T16:04:27.530101Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 83
+2026-10-08T16:04:27.530102Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 91
+2026-10-08T16:04:27.530104Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 12
+2026-10-08T16:04:27.530105Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 13
+2026-10-08T16:04:27.530106Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 1
+2026-10-08T16:04:27.530108Z  INFO zcash_tx_tool::commands::test_balances: === TEST 4 (fees in both assets): vUSD ===
+2026-10-08T16:04:27.530346Z  INFO zcash_tx_tool::commands::test_balances: AssetBase: e6ede36b
+2026-10-08T16:04:27.530349Z  INFO zcash_tx_tool::commands::test_balances: Account 0 balance: 98000
+2026-10-08T16:04:27.530350Z  INFO zcash_tx_tool::commands::test_balances: Account 1 balance: 68
+2026-10-08T16:04:27.530352Z  INFO zcash_tx_tool::commands::test_balances: Account 2 balance: 33
+2026-10-08T16:04:27.530353Z  INFO zcash_tx_tool::commands::test_balances: Account 3 balance: 945
+2026-10-08T16:04:27.530361Z  INFO zcash_tx_tool::commands::test_balances: Account 4 balance: 949
+2026-10-08T16:04:27.530362Z  INFO zcash_tx_tool::commands::test_balances: Account 5 balance: 5
+2026-10-08T16:04:27.530365Z  INFO zcash_tx_tool::commands::test_vibru_swaps: ALL VIBRU SWAP TESTS PASSED
+RC=0

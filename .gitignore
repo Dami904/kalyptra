@@ -1,0 +1,23 @@
+# build output
+target/
+node_modules/
+
+# local wallet state and secrets
+*.sqlite
+*.env
+.env*
+
+# editor and OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# built page
+ui/dist/
+
+# keys and wallets must never be committed
+wallets/
+*.seed
+*keystore*
+*.json.tmp

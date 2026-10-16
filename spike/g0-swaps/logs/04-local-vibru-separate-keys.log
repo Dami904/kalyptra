@@ -1,0 +1,183 @@
+Git tag: none
+Git commit: a344fde10418ac824bf66662bb3a39dba61b213f
+Using NetworkConfig: node_address = 127.0.0.1 ; node_port = 18232 ; protocol = http
+2026-10-08T16:36:21.713436Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.716626Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.716629Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.717565Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.717568Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.718275Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.718277Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.718916Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.718920Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.719745Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.719747Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 1
+2026-10-08T16:36:21.720433Z  INFO zcash_tx_tool::components::transactions: No block at height 1. Synced up to height 0
+2026-10-08T16:36:21.731800Z  INFO zcash_tx_tool::components::transactions: Issue 1000 asset
+2026-10-08T16:36:28.121433Z  INFO zcash_tx_tool::components::transactions: Build tx: 3995a05dfd3417abd45b4f8773f7598a02a6fb57b6e49da6a7528698646e73ea
+2026-10-08T16:36:31.085885Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:36:31.085917Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.097227Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.138136Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.138143Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.148184Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.171517Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.171521Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.181017Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.205331Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.205335Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.215854Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.239914Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.239918Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.249470Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.272731Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.272737Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 0
+2026-10-08T16:36:31.282649Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:31.309708Z  INFO zcash_tx_tool::components::transactions: No block at height 2. Synced up to height 1
+2026-10-08T16:36:31.309715Z  INFO zcash_tx_tool::components::transactions: Issue 100000 asset
+2026-10-08T16:36:38.527948Z  INFO zcash_tx_tool::components::transactions: Build tx: 5dd8edbaba4716e535f163d09de0043c6b0bbec67e7de1fcda609a0509f2df05
+2026-10-08T16:36:38.796515Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:36:38.796540Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.802675Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.844861Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:38.844865Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.850206Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.871834Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:38.871838Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.877136Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.896705Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:38.896712Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.901777Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.922858Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:38.922861Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.927810Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.955178Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:38.955184Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 2
+2026-10-08T16:36:38.961038Z  INFO zcash_tx_tool::components::user: Adding reference note to the database
+2026-10-08T16:36:38.982945Z  INFO zcash_tx_tool::components::transactions: No block at height 3. Synced up to height 2
+2026-10-08T16:36:39.026583Z  INFO zcash_tx_tool::components::transactions: Transfer 100 units to an external address
+2026-10-08T16:36:45.811769Z  INFO zcash_tx_tool::components::transactions: Build tx: 858d0ea5fa14282db23d25b647dc868ad882ed0f0a16df1c695b39d34976f675
+2026-10-08T16:36:46.045452Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:36:46.045546Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.078426Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.078434Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.103164Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.103173Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.109685Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.109688Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.115055Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.115058Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.120353Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.120358Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 3
+2026-10-08T16:36:46.125322Z  INFO zcash_tx_tool::components::transactions: No block at height 4. Synced up to height 3
+2026-10-08T16:36:46.125325Z  INFO zcash_tx_tool::components::transactions: Transfer 100 units to an external address
+2026-10-08T16:36:53.919663Z  INFO zcash_tx_tool::components::transactions: Build tx: 7692f25c1f98f3c1b8674bf582f10c443e68796fab45e78736e9b98b33efe4ae
+2026-10-08T16:36:54.131261Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:36:54.131291Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.165369Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.165376Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.172751Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.172755Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.198235Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.198241Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.204283Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.204310Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.210593Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.210597Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 4
+2026-10-08T16:36:54.215658Z  INFO zcash_tx_tool::components::transactions: No block at height 5. Synced up to height 4
+2026-10-08T16:36:54.215664Z  INFO zcash_tx_tool::components::transactions: Transfer 1000 units to an external address
+2026-10-08T16:37:02.888599Z  INFO zcash_tx_tool::components::transactions: Build tx: 72a953f23c706599cfbce80b8e6a41c720db245c226e549d389d4886e009e7cb
+2026-10-08T16:37:03.100394Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:37:03.100422Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.140900Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.140909Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.147602Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.147606Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.153697Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.153706Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.178489Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.178504Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.184134Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.184141Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 5
+2026-10-08T16:37:03.189888Z  INFO zcash_tx_tool::components::transactions: No block at height 6. Synced up to height 5
+2026-10-08T16:37:03.189895Z  INFO zcash_tx_tool::components::transactions: Transfer 1000 units to an external address
+2026-10-08T16:37:11.725849Z  INFO zcash_tx_tool::components::transactions: Build tx: 90653deeace2da9e044718bb73b9c998e753aad018eb655e08f9ca762666aba6
+2026-10-08T16:37:11.942984Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:37:11.943020Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:11.994251Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:11.994262Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:12.002718Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:12.002725Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:12.009871Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:12.009877Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:12.016414Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:12.016418Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:12.047608Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:12.047614Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 6
+2026-10-08T16:37:12.053280Z  INFO zcash_tx_tool::components::transactions: No block at height 7. Synced up to height 6
+2026-10-08T16:37:12.068475Z  INFO zcash_tx_tool::commands::test_vibru_keys: FUNDED: each wallet holds only its own assets (matcher holds none)
+2026-10-08T16:37:45.264483Z  INFO zcash_tx_tool::components::transactions: Build tx: 5f30450fcb49e7efaf4359b98bb918b242a129de4fa8547a3b528fd283d0eb2b
+2026-10-08T16:37:45.482594Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:37:45.482626Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.493745Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.493751Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.553760Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.553764Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.613776Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.613780Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.670771Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.670776Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.728862Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.728867Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 7
+2026-10-08T16:37:45.756162Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:37:45.756512Z  INFO zcash_tx_tool::commands::test_vibru_keys: ROUND 1 PASSED: separate wallets, one transaction, matcher took only its 2 vUSD fee
+The application panicked (crashed).
+Message:  insufficient inputs: required 10 but found 0
+Location: src/components/user.rs:239
+
+Backtrace omitted. Run with RUST_BACKTRACE=1 environment variable to display it.
+Run with RUST_BACKTRACE=full to include source snippets.
+2026-10-08T16:37:45.766120Z  INFO zcash_tx_tool::commands::test_vibru_keys:   -> stopped while building
+2026-10-08T16:37:45.766130Z  INFO zcash_tx_tool::commands::test_vibru_keys: ATTACK A BLOCKED: matcher cannot spend assets it does not hold
+2026-10-08T16:38:09.134897Z  INFO zcash_tx_tool::components::transactions: Build tx: ed1e4af80e432424cf88b88bfbaac18054ce2535a647b21ad4094d2bd8c75b98
+2026-10-08T16:38:09.249802Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":"rejected","id":"zcash-tx-tool"}
+
+2026-10-08T16:38:09.249844Z  INFO zcash_tx_tool::commands::test_vibru_keys:   -> stopped by the node (block rejected)
+2026-10-08T16:38:09.249852Z  INFO zcash_tx_tool::commands::test_vibru_keys: ATTACK B BLOCKED: an unagreed fee cannot be taken
+2026-10-08T16:38:09.249858Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.250858Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:09.250866Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.251844Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:09.251848Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.252779Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:09.252783Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.253647Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:09.253650Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.254506Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:09.254511Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:09.255278Z  INFO zcash_tx_tool::components::transactions: No block at height 8. Synced up to height 7
+2026-10-08T16:38:29.695155Z  INFO zcash_tx_tool::components::transactions: Build tx: ed0a89db066e5b8d3dd5d1175b3a5dca838c353e6f0348e900d353581e1453c0
+2026-10-08T16:38:29.904731Z  INFO zcash_tx_tool::components::rpc_client::reqwest: Request submitblock Response: {"result":null,"id":"zcash-tx-tool"}
+
+2026-10-08T16:38:29.904766Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:29.913030Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:29.913034Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:29.971854Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:29.971859Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:29.981938Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:29.981941Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:29.990197Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:29.990201Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:30.042218Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:30.042222Z  INFO zcash_tx_tool::components::transactions: Starting sync from height 8
+2026-10-08T16:38:30.069228Z  INFO zcash_tx_tool::components::transactions: No block at height 9. Synced up to height 8
+2026-10-08T16:38:30.069461Z  INFO zcash_tx_tool::commands::test_vibru_keys: RECOVERY PASSED: honest round after the blocked attack
+2026-10-08T16:38:30.069464Z  INFO zcash_tx_tool::commands::test_vibru_keys: ALL SEPARATE-KEYS TESTS PASSED
+RC=0

@@ -1,0 +1,6 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.patch text eol=lf
+*.rs text eol=lf
+crates/kalyptra-tse/tests/vectors/*.txt text eol=lf

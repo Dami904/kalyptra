@@ -1,0 +1,20 @@
+[package]
+name = "kalyptra-matcher"
+version = "0.1.0"
+description = "Kalyptra matcher node: sealed-order bulletin board, round state machine, threshold opening, uniform-price clearing and a public checker."
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+kalyptra-tse = { path = "../kalyptra-tse" }
+# 2.x shares curve25519-dalek 4 with FROST; 3.x would pull in a second, incompatible curve crate.
+ed25519-dalek = { version = "2.2", features = ["rand_core"] }
+sha2 = "0.10"
+rand_core = { version = "0.6", features = ["getrandom"] }
+thiserror = "2"
+
+[dev-dependencies]
+proptest = "1"
+kalyptra-tse = { path = "../kalyptra-tse", features = ["test-vectors"] }
