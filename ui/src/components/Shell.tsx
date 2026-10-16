@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { USE_MOCK, api, usePoll } from "../lib/api";
 import { clearActor, getActor, setActor } from "../lib/real";
+import { DemoGuide } from "./DemoGuide";
 import { Chip, cx, short } from "./ui";
 
 /// Sealed, then opened: three blocks, two still sealed and one opened to show the price. It is
@@ -123,6 +124,7 @@ export function AppShell() {
         </div>
       </header>
       <main key={screen} className="rise mx-auto max-w-[1180px] px-6 py-10">
+        {USE_MOCK && <DemoGuide />}
         <Outlet />
       </main>
     </div>

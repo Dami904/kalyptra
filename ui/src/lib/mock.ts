@@ -19,6 +19,8 @@ interface MockRound extends RoundSummary {
   record: RoundRecord | null;
   settlement: Settlement | null;
   parts: Set<number>;
+  /// Whether this round's settlement has already moved the investor's balances.
+  applied?: boolean;
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -90,6 +92,7 @@ const rounds: MockRound[] = [
     orders_list: seedOrders,
     record: seedRecord,
     parts: new Set([0, 1, 2, 3]),
+    applied: true,
     settlement: {
       round_id: 1,
       leader: 2,
@@ -108,11 +111,15 @@ const rounds: MockRound[] = [
   },
   {
     round_id: 2,
-    market: "BOLT/vUSD",
+    market: "ACME/vUSD",
     min_orders: 2,
     phase: "open",
-    orders: 0,
-    orders_list: [],
+    orders: 2,
+    // two other investors have already sealed theirs; they stay unreadable until the close
+    orders_list: [
+      { ticket: "r2-b1", o: { side: "sell", size: 4, limit: 5, owner: hex(64) } },
+      { ticket: "r2-b2", o: { side: "buy", size: 6, limit: 5, owner: hex(64) } },
+    ],
     record: null,
     settlement: null,
     parts: new Set(),
@@ -151,6 +158,19 @@ const summary = (r: MockRound): RoundSummary => ({
   phase: r.phase,
   orders: r.orders_list.length,
 });
+
+/// A settled round moves the investor's balances by exactly their own fills.
+function applySettlement(r: MockRound) {
+  if (r.applied || !r.settlement) return;
+  r.applied = true;
+  const [base, quote] = r.market.split("/");
+  for (const l of r.settlement.legs) {
+    if (!myTickets.has(r.orders_list[l.order]!.ticket)) continue;
+    const sign = l.side === "sell" ? 1 : -1;
+    holdings[base!] = (holdings[base!] ?? 0) - sign * l.base;
+    holdings[quote!] = (holdings[quote!] ?? 0) + sign * l.quote;
+  }
+}
 
 export const mockApi: Api = {
   async status() {
@@ -220,10 +240,27 @@ export const mockApi: Api = {
         r.settlement = {
           round_id: r.round_id,
           leader: (r.round_id % 3) + 1,
-          legs: r.record.fills.map((f) => ({ order: f.id, side: f.side, base: f.quantity, quote: f.quantity * p, received: false })),
+          // other investors' parts are in already; yours is handed in from Trade
+          legs: r.record.fills.map((f) => ({
+            order: f.id,
+            side: f.side,
+            base: f.quantity,
+            quote: f.quantity * p,
+            received: !myTickets.has(r.orders_list[f.id]!.ticket),
+          })),
           status: "collecting",
           bad: [],
         };
+        // if none of the filled orders is yours, there is nothing to wait for
+        if (r.settlement.legs.every((l) => l.received)) {
+          r.settlement.status = "assembling";
+          setTimeout(() => {
+            r.settlement!.status = "settled";
+            r.settlement!.txid = hex(64);
+            r.settlement!.height = 9;
+            applySettlement(r);
+          }, 2500);
+        }
       }
     });
   },
@@ -297,6 +334,7 @@ export const mockApi: Api = {
         r.settlement!.status = "settled";
         r.settlement!.txid = hex(64);
         r.settlement!.height = 9;
+        applySettlement(r);
       }, 2500);
     }
     return { settled: true, handed_to: 3, order: idx, base: leg.base, quote: leg.quote, sells: leg.side === "sell" };
@@ -311,6 +349,7 @@ export const mockApi: Api = {
       r.settlement!.status = "settled";
       r.settlement!.txid = hex(64);
       r.settlement!.height = 9;
+      applySettlement(r);
     }, 2500);
     return {};
   },

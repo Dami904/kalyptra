@@ -18,9 +18,28 @@ every filled order moves, or nothing does. Built for the Zecathon, Private Marke
 
 *Sealed until close · public price · private participants · capped supply.*
 
-[Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Run it](#run-it) · [Limits](#honest-limits)
+[Try the demo](#try-the-demo) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Run it](#run-it) · [Limits](#honest-limits)
 
 > **Status: a working prototype on a local regtest chain. Not audited. Do not use it with real assets.**
+
+## Try the demo
+
+The page has a **sample-data mode**: no nodes, no chain, nothing to install on a server. It runs the whole
+round in your browser tab, with the same rules as the real system, including its refusals. A "Guided demo"
+bar at the top of the app walks you through it in about two minutes:
+
+1. **Trade:** seal an order (sell 10 ACME at a limit of 4). Two other investors have already sealed theirs.
+2. **Rounds:** close the round and watch each node receipt, vote, release its share and sign.
+3. **Read the result:** one clearing price (4), volume 6, and **Public check: Passed**.
+4. **Settle** your order: one transaction, every order moves or none does.
+5. **Portfolio:** your ACME went down by your fill and your vUSD went up by the same trade.
+
+To see the guards, sell 500 ACME (refused: more than you hold), or place a second ACME sell in the same round
+(refused: both would spend the same note). Reloading the page starts the sample over.
+
+Run it locally with `cd ui && npm ci && VITE_USE_MOCK=true npm run dev`. The hosted copy is the same build
+(`ui/vercel.json` sets `VITE_USE_MOCK=true`). The sample data is not the real system: the real one (three
+nodes, a Zcash regtest chain) runs from this repository, see [Run it](#run-it).
 
 ## Judge fast path
 
