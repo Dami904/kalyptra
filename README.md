@@ -41,7 +41,7 @@ To see the guards, sell 500 ACME (refused: more than you hold), or place a secon
 (refused: both would spend the same note). Reloading the page starts the sample over.
 
 Run it locally with `cd ui && npm ci && VITE_USE_MOCK=true npm run dev`. The hosted copy is the same build
-(`ui/vercel.json` sets `VITE_USE_MOCK=true`). The sample data is not the real system: the real one (three
+(`ui/vercel.json` sets `VITE_USE_MOCK=true`). Every push to `main` redeploys it automatically. The sample data is not the real system: the real one (three
 nodes, a Zcash regtest chain) runs from this repository, see [Run it](#run-it).
 
 ## Judge fast path
