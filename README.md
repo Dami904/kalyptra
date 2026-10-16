@@ -2,12 +2,11 @@
 
 **Sealed-bid auctions for private company shares, on Zcash Shielded Assets.**
 
+[![CI](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml/badge.svg)](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml)
 [![Tests: 149 passing](https://img.shields.io/badge/tests-149%20passing-2ea44f)](#tests-and-evidence)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
 [![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](Cargo.toml)
 [![Zcash Shielded Assets: local regtest](https://img.shields.io/badge/Zcash%20Shielded%20Assets-local%20regtest-f4b728)](docs/API_NOTES.md)
-
-<!-- Add the CI badge once the repository is public: it must link to a real Actions run. -->
 
 > The hard part of a private market is not hiding the orders. It is hiding them *and* letting
 > anyone prove the one published price is the right one.
@@ -269,7 +268,7 @@ ui/                   the page
 docs/                 THREAT_MODEL, LIMITATIONS, API_NOTES, ACCESS_CONTROL, RUNOFSHOW (the demo script)
 spike/g0-swaps/       the first swap experiments (keeps the old name "Vibru" as evidence)
 ATTACKS.md  PLAN.md   attack catalogue; design, progress and decisions
-.github/workflows/    CI (configured; not yet run on GitHub)
+.github/workflows/    CI (all jobs green on GitHub, 2026-10-16)
 ```
 
 ## Run it

@@ -45,8 +45,8 @@ What is explicitly NOT handled. Dates are when each was last checked against the
 - **Linux or WSL only** for the full stack. There is no `docker compose`.
 - **Phone-size layout** was checked only in a browser pane at 375 px (no horizontal overflow on
   any screen), not on a real phone, and there are no automated browser tests.
-- **CI** is configured (`.github/workflows/ci.yml`) but had not been run on GitHub as of
-  2026-10-15, because nothing is pushed yet. The regtest scripts are not in CI.
+- **CI** (`.github/workflows/ci.yml`) passed all six jobs on GitHub on 2026-10-16 (tests, lint, docs,
+  the Rust 1.85 build, vectors, UI, guardrails, mutation check). The regtest scripts are not in CI.
 
 ## Reliability gaps found by the 2026-10-15 review, not fixed
 - **A crash between issuing a token and recording it can double-issue.** The asset id is

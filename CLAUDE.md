@@ -39,7 +39,7 @@ reproduce from published data.**
 - UI: the package manager is **npm** (`ui/package-lock.json`). The template rule "use pnpm" was
   not adopted: it would be a lockfile migration with 11 days left, for no change in behaviour.
 - Do not read secrets or keystores. Never point anything at mainnet.
-- Do not `git commit` until the user says so.
+- Commits: the user allowed the first commit and push on 2026-10-16 (repo `Dami904/kalyptra`, private). Commit messages carry no co-author line.
 
 ## Required checks
 Rust, in Linux or WSL (run via WSL on Windows; `CARGO_TARGET_DIR=$HOME/vibru-target`):
