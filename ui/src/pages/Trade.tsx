@@ -40,7 +40,7 @@ function MyOrders() {
   }
 
   return (
-    <Card className="mt-6 overflow-hidden">
+    <Card tour="my-orders" className="mt-6 overflow-hidden">
       <div className="flex items-center justify-between border-b border-line px-5 py-3">
         <p className="eyebrow m-0">My orders</p>
         <span className="text-xs text-muted">Kept on this machine, with each order's one-time key</span>
@@ -153,7 +153,7 @@ export default function Trade() {
           </ul>
         </Card>
 
-        <Card className="p-6">
+        <Card tour="order-form" className="p-6">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
             <h2 className="m-0 text-[22px] font-medium tracking-tight">{pair(market)}</h2>
             <Chip>Uniform price · one per round</Chip>
@@ -176,6 +176,7 @@ export default function Trade() {
                   </Select>
                 </Field>
               )}
+              <div data-tour="order-fields" className="grid gap-5">
               <Segmented
                 value={side}
                 onChange={setSide}
@@ -193,6 +194,7 @@ export default function Trade() {
                   <Input type="number" min={1} value={limit} onChange={(e) => setLimit(e.target.value)} className="num" />
                 </Field>
               </div>
+              </div>
 
               <div className="rounded-xl bg-wash px-4 py-3 text-sm text-muted">
                 {valid ? (
@@ -205,7 +207,7 @@ export default function Trade() {
                 )}
               </div>
 
-              <Button onClick={submit} busy={busy} disabled={!valid || roundId === undefined}>
+              <Button data-tour="order-submit" onClick={submit} busy={busy} disabled={!valid || roundId === undefined}>
                 Seal and submit
               </Button>
               {err && <Notice tone="down">{err}</Notice>}

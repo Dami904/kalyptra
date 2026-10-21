@@ -27,7 +27,7 @@ export default function Portfolio() {
         </Card>
       )}
       {data && (
-        <div className="rise grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div data-tour="balances" className="rise grid grid-cols-2 gap-3 md:grid-cols-4">
           {Object.entries(data).map(([sym, n]) => (
             <Metric key={sym} label={sym} value={n} hint={sym === "vUSD" ? "play money" : "shares"} />
           ))}

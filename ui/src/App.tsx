@@ -20,8 +20,9 @@ export default function App() {
           <Route path="/list" element={<List />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/audit" element={<Audit />} />
-          <Route path="/docs" element={<Docs />} />
         </Route>
+        <Route path="/docs" element={<Docs />} />
+        <Route path="/docs/:slug" element={<Docs />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

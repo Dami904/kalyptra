@@ -67,7 +67,7 @@ saved round with the price changed from 5 to 6, rejected offline (`VERIFICATION 
 - **The stack is still starting or a wallet command is slow:** say "every wallet command
   rescans the chain; that is the regtest prototype, not the protocol", and cut to
   `bash scripts/demo.sh`, which needs no chain and shows the whole protocol in a minute.
-- **No local stack at all (or it will not start):** open the hosted sample-data demo at <https://kalyptra.vercel.app> and follow its Guided demo bar; it shows the same flow without a chain. Say plainly that it is sample data.
+- **No local stack at all (or it will not start):** open the hosted sample-data demo at <https://kalyptra.vercel.app> and press "Take the 2-minute tour"; it walks the same flow without a chain. Say plainly that it is sample data.
 - **The page will not load:** the gateway is not up. Show `scripts/demo.sh` output instead; the
   README has the same run pasted from 2026-10-15.
 - **Settlement shows `failed` or `unknown`:** that is a real state, not a crash. Press **Try the

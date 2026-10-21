@@ -28,8 +28,9 @@ every filled order moves, or nothing does. Built for the Zecathon, Private Marke
 **Live: <https://kalyptra.vercel.app>**
 
 The page has a **sample-data mode**: no nodes, no chain, nothing to install on a server. It runs the whole
-round in your browser tab, with the same rules as the real system, including its refusals. A "Guided demo"
-bar at the top of the app walks you through it in about two minutes:
+round in your browser tab, with the same rules as the real system, including its refusals. A spotlight tour
+(press **Show me**, or **Take the 2-minute tour** on the landing page) highlights each control in turn and moves on
+when you use it:
 
 1. **Trade:** seal an order (sell 10 ACME at a limit of 4). Two other investors have already sealed theirs.
 2. **Rounds:** close the round and watch each node receipt, vote, release its share and sign.

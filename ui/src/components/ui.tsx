@@ -43,8 +43,12 @@ export function Skeleton({ className }: { className?: string }) {
   return <div className={cx("skeleton rounded-lg", className)} aria-hidden="true" />;
 }
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cx("rounded-2xl border border-line bg-card", className)}>{children}</div>;
+export function Card({ children, className, tour }: { children: ReactNode; className?: string; tour?: string }) {
+  return (
+    <div data-tour={tour} className={cx("rounded-2xl border border-line bg-card", className)}>
+      {children}
+    </div>
+  );
 }
 
 export function Metric({ label, value, tone, hint }: { label: string; value: ReactNode; tone?: "up" | "down"; hint?: string }) {

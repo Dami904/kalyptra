@@ -220,7 +220,7 @@ function Detail({ id }: { id: number }) {
       </div>
 
       {nodes && nodes.orders > 0 && (
-        <div className="mb-7">
+        <div data-tour="node-tracker" className="mb-7">
           <p className="eyebrow m-0 mb-2">What each node has done</p>
           <NodeTracker progress={nodes} />
         </div>
@@ -232,7 +232,7 @@ function Detail({ id }: { id: number }) {
             Nobody can read them, including the nodes. The board holds only ciphertexts and signed receipts until the round closes.
           </Notice>
           <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={close} busy={busy} variant="outline">
+            <Button data-tour="round-close" onClick={close} busy={busy} variant="outline">
               Close round
             </Button>
             <span className="text-sm text-muted">Closing makes the nodes agree on which orders count. Then they open them together.</span>
@@ -257,7 +257,7 @@ function Detail({ id }: { id: number }) {
 
       {r.phase === "cleared" && record && (
         <div className="grid gap-7">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div data-tour="round-result" className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Metric
               label="Clearing price"
               value={record.price === null ? "none" : <CountUp to={record.price} />}

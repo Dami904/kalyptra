@@ -5,6 +5,7 @@ import { CountUp, GlyphField, Marquee, Reveal, Rotator, useInView } from "../com
 import { Logo } from "../components/Shell";
 import { Terminal, type Line } from "../components/Terminal";
 import { Button, Card, Chip, cx } from "../components/ui";
+import { USE_MOCK } from "../lib/api";
 
 const features = [
   { n: "01", t: "Sealed until close", d: "Each order is encrypted to a key split across three nodes. No single node, and no one else, can read an order while the round is open." },
@@ -230,6 +231,11 @@ export default function Landing() {
             <Link to="/rounds" className="no-underline">
               <Button>Launch app →</Button>
             </Link>
+            {USE_MOCK && (
+              <Link to="/rounds?tour=1" className="no-underline">
+                <Button variant="outline">Take the 2-minute tour</Button>
+              </Link>
+            )}
             <a href="#how" className="no-underline">
               <Button variant="outline">How it works</Button>
             </a>

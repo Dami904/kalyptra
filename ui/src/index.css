@@ -195,3 +195,64 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* The guided tour (driver.js), in the app's own card and button style. */
+.driver-popover.kal-tour {
+  background: var(--color-card, #fff);
+  color: var(--color-ink, #111);
+  border: 1px solid #111;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(17, 17, 17, 0.14);
+  padding: 18px 18px 14px;
+  max-width: min(340px, calc(100vw - 32px));
+  font-family: inherit;
+}
+.driver-popover.kal-tour .driver-popover-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.driver-popover.kal-tour .driver-popover-description {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #6b6a66;
+}
+.driver-popover.kal-tour .driver-popover-progress-text {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: #8f8d87;
+}
+.driver-popover.kal-tour .driver-popover-footer {
+  margin-top: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.driver-popover.kal-tour .driver-popover-navigation-btns {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.driver-popover.kal-tour .driver-popover-navigation-btns button {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+  padding: 7px 16px;
+  text-shadow: none;
+}
+.driver-popover.kal-tour .driver-popover-next-btn,
+.driver-popover.kal-tour .driver-popover-next-btn:hover {
+  background: #111;
+  color: #faf9f6;
+  border: 1px solid #111;
+}
+.driver-popover.kal-tour .driver-popover-prev-btn,
+.driver-popover.kal-tour .driver-popover-prev-btn:hover {
+  background: transparent;
+  color: #6b6a66;
+  border: 1px solid #dddbd5;
+}
+.driver-popover.kal-tour .driver-popover-close-btn {
+  color: #8f8d87;
+}

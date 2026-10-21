@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { USE_MOCK, api, usePoll } from "../lib/api";
 import { clearActor, getActor, setActor } from "../lib/real";
-import { DemoGuide } from "./DemoGuide";
+import { TourNudge } from "./TourNudge";
 import { Chip, cx, short } from "./ui";
 
 /// Sealed, then opened: three blocks, two still sealed and one opened to show the price. It is
@@ -97,7 +97,7 @@ export function AppShell() {
   // Fade between screens, but keep a screen mounted while moving between its own sub-pages.
   const screen = useLocation().pathname.split("/")[1] ?? "";
   return (
-    <div className={cx("min-h-screen", USE_MOCK && "pb-28 sm:pb-20")}>
+    <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
         <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-x-8 gap-y-2 px-6 py-3 lg:flex-nowrap">
           <Logo />
@@ -127,7 +127,7 @@ export function AppShell() {
       <main key={screen} className="rise mx-auto max-w-[1180px] px-6 py-10">
         <Outlet />
       </main>
-      {USE_MOCK && <DemoGuide />}
+      {USE_MOCK && <TourNudge />}
     </div>
   );
 }
