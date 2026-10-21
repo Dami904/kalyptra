@@ -19,7 +19,7 @@ every filled order moves, or nothing does. Built for the Zecathon, Private Marke
 
 *Sealed until close · public price · private participants · capped supply.*
 
-[Try the demo](https://kalyptra.vercel.app) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Run it](#run-it) · [Limits](#honest-limits)
+[Try the demo](https://kalyptra.vercel.app) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Privacy](#what-stays-private-and-what-is-public-by-design) · [Run it](#run-it) · [Limits](#honest-limits)
 
 > **Status: a working prototype on a local regtest chain. Not audited. Do not use it with real assets.**
 
@@ -252,21 +252,35 @@ rule; each now has one.
 | Portfolio | Your balances, read from your own wallet |
 | Audit | An investor's viewing key shows their holdings to an auditor, read-only |
 
+## What stays private, and what is public by design
+
+| | Who can see it |
+|---|---|
+| **Who placed an order** | Nobody. Every order is signed with its own fresh one-time key, so nothing links it to a person, a wallet or another order. |
+| **An order before the round closes** | Nobody, including the nodes. It is encrypted to a key no single node holds; opening needs 2 of 3 nodes, and they open only after signing the same final set. |
+| **Holdings and transfers** | Shielded on chain. Only an auditor an investor chooses, holding their viewing key, can see that investor's holdings, and cannot spend them. |
+| **Each order after the close: side, size, limit** | Everyone, anonymously. This is what lets anyone recheck the price instead of trusting the nodes. |
+| **The clearing price and volume** | Everyone. One price for the whole round. |
+
+**The trust assumption:** privacy before the close holds while fewer than 2 of the 3 nodes
+collude. If 2 collude they could open orders early; even then they cannot forge the price, drop a
+receipted order or wrongly void a round without the public checker proving it.
+
 ## Honest limits
 
 The full list is in [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) and
 [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md). The headlines:
 
-- **Local regtest only.** ZSA swaps are not on any public network.
-- **`t` colluding nodes can read orders early.** That is the security threshold. The demo runs all
-  three nodes on one machine under one operator, so it shows the mechanism, not decentralisation.
+- **Local regtest only.** ZSA swaps are not on any public network yet, so settlement runs on
+  QEDIT's prototype node locally.
+- **One operator in the demo.** All three nodes run on one machine, so the demo shows the
+  mechanism; real use puts each node with a different operator.
 - **Not audited.** The threshold-decryption design is our own composition of standard parts. An AI
   review found one high-severity flaw, since fixed; there has been no human audit.
 - **A wallet can settle one order per asset per round.** Found by running it for real; the
-  gateway now refuses the second such order. A failed or unknown settlement can be retried safely.
-- **After a round, orders are published** (side, size, limit, a one-time key that names no one),
-  because the checker needs them.
-- **Plain HTTP,** no login on the gateway. Keep it on `127.0.0.1`.
+  gateway refuses the second such order. A failed or unknown settlement can be retried safely.
+- **The gateway is a local program.** Plain HTTP with no login, so it only listens on
+  `127.0.0.1`, on the investor's own machine.
 - **Rounds are periodic, not continuous.** That rhythm is the trade-off for one fair price.
 
 ## Tech stack
