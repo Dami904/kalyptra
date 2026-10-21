@@ -31,10 +31,10 @@ export function Logo({ light }: { light?: boolean }) {
   );
 }
 
-const tabs = [
+const tabs: { to: string; label: string; short?: string }[] = [
   { to: "/rounds", label: "Rounds" },
   { to: "/trade", label: "Trade" },
-  { to: "/list", label: "List a company" },
+  { to: "/list", label: "List a company", short: "List" },
   { to: "/portfolio", label: "Portfolio" },
   { to: "/audit", label: "Audit" },
   { to: "/docs", label: "Docs" },
@@ -92,7 +92,7 @@ function ActingAs() {
           setActor(e.target.value);
           window.location.reload();
         }}
-        className="mono h-7 cursor-pointer rounded-md border border-line bg-card px-1.5 text-[11.5px] sm:px-2 sm:text-[12px] text-ink hover:border-ink focus:border-ink focus:outline-none"
+        className="mono h-9 cursor-pointer rounded-md sm:h-7 border border-line bg-card px-1.5 text-[11.5px] sm:px-2 sm:text-[12px] text-ink hover:border-ink focus:border-ink focus:outline-none"
       >
         {names.map((n) => (
           <option key={n} value={n}>
@@ -127,12 +127,19 @@ export function AppShell() {
                 to={t.to}
                 className={({ isActive }) =>
                   cx(
-                    "mono shrink-0 whitespace-nowrap rounded-lg px-3.5 py-1.5 text-[13px] no-underline transition-colors",
+                    "mono shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2.5 text-[13px] no-underline transition-colors sm:py-1.5",
                     isActive ? "bg-ink text-paper" : "text-muted hover:text-ink",
                   )
                 }
               >
-                {t.label}
+                {t.short ? (
+                  <>
+                    <span className="sm:hidden">{t.short}</span>
+                    <span className="hidden sm:inline">{t.label}</span>
+                  </>
+                ) : (
+                  t.label
+                )}
               </NavLink>
             ))}
           </nav>

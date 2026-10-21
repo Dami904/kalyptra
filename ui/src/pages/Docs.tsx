@@ -120,7 +120,7 @@ export default function Docs() {
       to={docHref(p)}
       aria-current={p === page ? "page" : undefined}
       className={cx(
-        "-ml-px block border-l py-1.5 pl-3 text-[14px] no-underline transition-colors",
+        "-ml-px block border-l py-2.5 pl-3 text-[15px] no-underline transition-colors lg:py-1.5 lg:text-[14px]",
         p === page ? "border-ink font-medium text-ink" : "border-transparent text-muted hover:border-faint hover:text-ink",
       )}
     >
@@ -143,7 +143,7 @@ export default function Docs() {
             type="button"
             onClick={() => setSearching(true)}
             aria-label="Search the docs"
-            className="mono flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[12.5px] text-muted hover:border-ink sm:px-3"
+            className="mono flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-card px-2.5 py-2 sm:py-1.5 text-[12.5px] text-muted hover:border-ink sm:px-3"
           >
             <svg viewBox="0 0 16 16" className="h-4 w-4 sm:hidden" aria-hidden="true">
               <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -152,8 +152,8 @@ export default function Docs() {
             <span className="hidden sm:inline">Search</span>
             <kbd className="hidden rounded border border-line px-1.5 text-[11px] sm:inline">Ctrl K</kbd>
           </button>
-          <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} className="mono cursor-pointer rounded-lg border border-line px-3 py-1.5 text-[12.5px] lg:hidden">
-            Menu
+          <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} className="mono cursor-pointer rounded-lg border border-line px-3 py-2 text-[12.5px] sm:py-1.5 lg:hidden">
+            {menu ? "Close" : "Menu"}
           </button>
           <Link to="/rounds" className="no-underline">
             <Button size="sm">

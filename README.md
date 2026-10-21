@@ -17,9 +17,17 @@ three matcher nodes open the orders together, clear them at **one uniform price*
 enough that anyone can recompute it. A cleared round then settles as **one atomic swap**:
 every filled order moves, or nothing does. Built for the Zecathon, Private Markets track.
 
+It is a dark pool you do not have to trust: the orders stay hidden like any dark pool's, but no operator
+reports the price. Anyone can recompute it.
+
 *Sealed until close · public price · private participants · capped supply.*
 
 [Try the demo](https://kalyptra.vercel.app) · [Docs](https://kalyptra.vercel.app/docs) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Privacy](#what-stays-private-and-what-is-public-by-design) · [Run it](#run-it) · [Limits](#honest-limits)
+
+<p align="center">
+  <img src="docs/img/round.png" alt="A cleared round: three nodes receipted, voted, shared and signed; clearing price 5; public check passed" width="760">
+</p>
+<p align="center"><sub>A cleared round in the sample-data build: every node's progress, one clearing price, and the public check recomputed from published data. More: <a href="docs/img/landing.png">landing</a>, <a href="docs/img/portfolio.png">portfolio</a>, <a href="docs/img/docs.png">docs</a>.</sub></p>
 
 > **Status: a working prototype on a local regtest chain. Not audited. Do not use it with real assets.**
 

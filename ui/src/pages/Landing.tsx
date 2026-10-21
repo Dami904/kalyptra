@@ -210,7 +210,7 @@ export default function Landing() {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-          <Link to="/docs" className="mono text-[13px] text-muted no-underline hover:text-ink md:hidden">
+          <Link to="/docs" className="mono -my-2 px-2 py-3 text-[13px] text-muted no-underline hover:text-ink md:hidden">
             Docs
           </Link>
           <Link to="/rounds" className="no-underline">
