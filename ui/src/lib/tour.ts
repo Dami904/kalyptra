@@ -5,7 +5,7 @@ import "driver.js/dist/driver.css";
    it. Steps can live on different pages; the tour navigates, waits for the control to appear,
    and can move on by itself when you actually use the control. */
 
-export type TourStep = {
+type TourStep = {
   route: string;
   /** CSS selector of the element to highlight. */
   element: string;

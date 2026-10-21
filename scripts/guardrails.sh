@@ -3,7 +3,8 @@
 # Fails (exit 1) and names the line if any rule is broken. Runs in CI and anywhere with bash.
 #
 #   1. Code and scripts talk only to this machine, plus a short list of download hosts used to
-#      build the prototype (no live network, no mainnet endpoint, no hosted RPC).
+#      build the prototype (no live network, no mainnet endpoint, no hosted RPC). The page may
+#      also link to this project's own repository.
 #   2. Nothing reads a .env file or a keystore.
 #   3. Nothing in the scripts or code selects Zcash mainnet (the page may say the word: it is prose).
 set -uo pipefail
@@ -23,8 +24,8 @@ code_files() {
     grep -v '^scripts/guardrails\.sh$'
 }
 
-# 1. every URL is loopback, or one of the hosts the build downloads from
-allowed='^https?://(127\.0\.0\.1|localhost|\[::1\])([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation)(/|$)'
+# 1. every URL is loopback, one of the hosts the build downloads from, or this project's repo
+allowed='^https?://(127\.0\.0\.1|localhost|\[::1\])([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation|github\.com/Dami904/kalyptra)(/|$)'
 urls=$(code_files | xargs grep -noE 'https?://[^ "'"'"'`)<>{}\\]+' 2>/dev/null |
   awk -F: '{ url=$0; sub(/^[^:]*:[^:]*:/, "", url); print $1":"$2" "url }' |
   while read -r where url; do

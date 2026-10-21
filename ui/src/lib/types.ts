@@ -61,7 +61,7 @@ export interface Ticket {
   filled: number | null;
   price: number | null;
 }
-export interface NodeStatus {
+interface NodeStatus {
   id: number;
   url: string;
   up: boolean;

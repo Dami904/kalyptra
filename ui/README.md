@@ -12,6 +12,7 @@ A light, editorial React page for Kalyptra: `React 19`, `Vite`, `Tailwind 4`, `T
 | `/list` | List a company: issue a token from your wallet, optionally capping its supply forever |
 | `/portfolio` | Your own balances, read from your own wallet |
 | `/audit` | See holdings through a viewing key, or export yours |
+| `/docs` | The docs: grouped pages, "On this page", previous/next, and Ctrl/Cmd+K search |
 
 ## Run it
 
@@ -23,7 +24,7 @@ bash scripts/run.sh
 
 Then open <http://127.0.0.1:8787>. Use **Acting as** in the header to switch between the investors' wallets.
 
-**Only for working on the look**, there is a sample-data mode with no nodes or wallets behind it. The header then says "Sample data". It is not a way to run Kalyptra:
+**Sample-data mode** has no nodes or wallets behind it: an in-memory backend with the same auction rules. The hosted demo (<https://kalyptra.vercel.app>) runs in it, and it adds a spotlight tour of one round (a "New here? Show me" card, or `?tour=1` on any app page). The header says "Sample data". It shows the product; it does not run Kalyptra:
 
 ```bash
 cd ui
@@ -58,7 +59,8 @@ The per-node tracker is not decoration. A node that sees two matching commit vot
 - `src/lib/types.ts`: the shapes the gateway returns, and the `Api` interface.
 - `src/lib/real.ts`: the real client. `src/lib/mock.ts`: an in-memory pretend backend with the same rules (a real uniform-price auction), used when `VITE_USE_MOCK=true`. The header shows "Sample data" when it is on.
 - `src/components/`: the small kit (button, card, chip, notice, table, the step bars) and the shell.
-- `src/pages/`: one file per screen.
+- `src/pages/`: one file per screen. `src/docs/`: the docs pages, written as plain JSX.
+- `src/lib/tour.ts` and `src/components/TourNudge.tsx`: the spotlight tour (driver.js), sample-data mode only.
 
 ## What the page promises, and what it does not
 
