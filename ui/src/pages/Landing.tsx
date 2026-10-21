@@ -201,6 +201,7 @@ export default function Landing() {
             ["#compare", "Compare"],
             ["#evidence", "Evidence"],
             ["#faq", "FAQ"],
+            ["/docs", "Docs"],
           ].map(([h, l]) => (
             <a key={h} href={h} className="mono no-underline hover:text-ink">
               {l}

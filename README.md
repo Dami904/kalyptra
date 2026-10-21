@@ -19,7 +19,7 @@ every filled order moves, or nothing does. Built for the Zecathon, Private Marke
 
 *Sealed until close · public price · private participants · capped supply.*
 
-[Try the demo](https://kalyptra.vercel.app) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Privacy](#what-stays-private-and-what-is-public-by-design) · [Run it](#run-it) · [Limits](#honest-limits)
+[Try the demo](https://kalyptra.vercel.app) · [Docs](https://kalyptra.vercel.app/docs) · [Judge fast path](#judge-fast-path) · [The proof](#the-core-proof-a-real-run) · [Privacy](#what-stays-private-and-what-is-public-by-design) · [Run it](#run-it) · [Limits](#honest-limits)
 
 > **Status: a working prototype on a local regtest chain. Not audited. Do not use it with real assets.**
 

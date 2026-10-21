@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/Shell";
 import Audit from "./pages/Audit";
+import Docs from "./pages/Docs";
 import Landing from "./pages/Landing";
 import List from "./pages/List";
 import Portfolio from "./pages/Portfolio";
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/list" element={<List />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/audit" element={<Audit />} />
+          <Route path="/docs" element={<Docs />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
