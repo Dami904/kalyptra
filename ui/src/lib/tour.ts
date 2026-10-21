@@ -75,7 +75,14 @@ export function runTour(steps: TourStep[], navigate: (to: string) => void, onEnd
       i += 1;
       return show();
     }
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    // Bring it into view BEFORE the card is placed: a scroll after placing would leave the card
+    // on top of the control (seen on phones).
+    el.scrollIntoView({ block: "center" });
+    // (two frames, or 60 ms if frames are paused, as in a background tab)
+    await new Promise<void>((r) => {
+      setTimeout(r, 60);
+      requestAnimationFrame(() => requestAnimationFrame(() => r()));
+    });
     const last = i === steps.length - 1;
     d.highlight({
       element: el,

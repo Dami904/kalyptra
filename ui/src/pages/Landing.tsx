@@ -209,9 +209,14 @@ export default function Landing() {
             </a>
           ))}
         </nav>
-        <Link to="/rounds" className="no-underline">
-          <Button size="sm">Launch app</Button>
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/docs" className="mono text-[13px] text-muted no-underline hover:text-ink md:hidden">
+            Docs
+          </Link>
+          <Link to="/rounds" className="no-underline">
+            <Button size="sm">Launch app</Button>
+          </Link>
+        </div>
       </header>
 
       <section className="relative overflow-hidden">

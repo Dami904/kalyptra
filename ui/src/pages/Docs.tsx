@@ -132,8 +132,8 @@ export default function Docs() {
     <div className="min-h-screen bg-paper">
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-5 py-3">
-          <Link to="/" className="mr-auto flex items-center gap-2.5 no-underline">
-            <LogoMark className="h-7 w-7" />
+          <Link to="/" className="mr-auto flex min-w-0 items-center gap-2.5 no-underline">
+            <LogoMark className="h-7 w-7 shrink-0" />
             <span className="leading-none">
               <span className="block text-[17px] font-medium tracking-tight text-ink">Kalyptra</span>
               <span className="mono block text-[11px] text-muted">docs</span>
@@ -142,15 +142,24 @@ export default function Docs() {
           <button
             type="button"
             onClick={() => setSearching(true)}
-            className="mono hidden cursor-pointer items-center gap-3 rounded-lg border border-line bg-card px-3 py-1.5 text-[12.5px] text-muted hover:border-ink sm:flex"
+            aria-label="Search the docs"
+            className="mono flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[12.5px] text-muted hover:border-ink sm:px-3"
           >
-            Search <kbd className="rounded border border-line px-1.5 text-[11px]">Ctrl K</kbd>
+            <svg viewBox="0 0 16 16" className="h-4 w-4 sm:hidden" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M10.5 10.5 L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            <span className="hidden sm:inline">Search</span>
+            <kbd className="hidden rounded border border-line px-1.5 text-[11px] sm:inline">Ctrl K</kbd>
           </button>
           <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} className="mono cursor-pointer rounded-lg border border-line px-3 py-1.5 text-[12.5px] lg:hidden">
             Menu
           </button>
           <Link to="/rounds" className="no-underline">
-            <Button size="sm">Launch app →</Button>
+            <Button size="sm">
+              <span className="hidden sm:inline">Launch app</span>
+              <span className="sm:hidden">App</span> →
+            </Button>
           </Link>
         </div>
       </header>

@@ -256,3 +256,11 @@ body {
 .driver-popover.kal-tour .driver-popover-close-btn {
   color: #8f8d87;
 }
+
+/* The app's tab row, when it scrolls sideways (below 1280 px): fade its right edge so it reads
+   as "there is more this way" rather than a cut-off word. */
+@media (max-width: 1279px) {
+  .nav-fade {
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+}

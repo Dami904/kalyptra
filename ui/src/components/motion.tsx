@@ -89,8 +89,18 @@ export function Rotator({ words, interval = 2600, className }: { words: string[]
   }, [reduced, words.length, interval]);
   // Measure each word once, so the slot can slide to the current word's own width and the
   // text after it never sits behind a gap.
+  // Measure again once the web fonts have loaded (they are wider than the fallback) and when
+  // the window is resized, or the word overruns its slot and touches the next one.
   useLayoutEffect(() => {
-    setWidths(inner.current.map((el) => el?.offsetWidth ?? 0));
+    const measure = () => setWidths(inner.current.map((el) => el?.offsetWidth ?? 0));
+    measure();
+    let alive = true;
+    void document.fonts?.ready.then(() => alive && measure());
+    window.addEventListener("resize", measure);
+    return () => {
+      alive = false;
+      window.removeEventListener("resize", measure);
+    };
   }, [words]);
   return (
     <span
