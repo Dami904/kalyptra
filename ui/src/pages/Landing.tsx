@@ -35,8 +35,8 @@ const assets = [
 ];
 
 const evidence = [
-  ["132", "automated tests, passing on repeated runs"],
-  ["23", "defences, each proven needed by switching it off and watching a test fail"],
+  ["149", "automated tests, passing on every push in CI"],
+  ["44", "defences, each proven needed by switching it off and watching a test fail"],
   ["4", "protocol holes our own attack tests found, then fixed"],
   ["3", "separate node processes run a round over the network"],
 ];
@@ -57,7 +57,7 @@ const status = [
   ["The page and local gateway", "Live on local regtest", "Orders, clearing, settlement, balances and audit, by hand in the browser"],
   ["Settlement as one atomic swap", "Live on local regtest", "QEDIT prototype node; not on any public network"],
   ["Auditor view with a viewing key", "Live on local regtest", "Holdings only, cannot spend"],
-  ["Listing a company", "Local", "Not yet co-signed by the nodes"],
+  ["Listing a company", "Live on local regtest", "Each node signs the symbol-to-asset binding; 2 of 3 make it count"],
 ];
 
 const faq: [string, ReactNode][] = [
@@ -79,7 +79,7 @@ const faq: [string, ReactNode][] = [
   ],
   [
     "Can I list my own company?",
-    "Yes. The List screen issues a token from your wallet and can cap its supply for good. On a local test chain anyone can list anything, and the nodes do not yet sign listings, so always compare asset ids, not names. Whether a company is real is a legal question outside the code.",
+    "Yes. The List screen issues a token from your wallet and can cap its supply for good. The matcher nodes each sign that this symbol means this asset id, and refuse a symbol or asset already listed another way. Nothing checks that the company is real, so always compare asset ids, not names. Whether a company is real is a legal question outside the code.",
   ],
   [
     "Is it audited?",
