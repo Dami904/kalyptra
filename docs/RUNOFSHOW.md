@@ -3,7 +3,7 @@
 **Thesis in one line:** the hard part of a private market is not hiding the orders; it is hiding
 them *and* letting anyone prove the one published price is the right one.
 
-Target: 3 minutes for the video, then Q&A if live. Feeling first (a sealed order), then proof
+Target: **2 minutes** (the Zecathon form asks for a two-minute video), then Q&A if live. Feeling first (a sealed order), then proof
 (the price checked, a forged price rejected), then the close. Every number on screen is live
 from a real run; if a step fails, the contingency section says what to show instead.
 
@@ -21,45 +21,44 @@ from a real run; if a step fails, the contingency section says what to show inst
 - [ ] The one moment to let breathe: **the forged price being rejected.** Stop talking for two
       seconds when `VERIFICATION FAILED` appears.
 
-## Cold open: the problem (0:00-0:20)
+## Before you press record (saves 30 seconds on camera)
 
-> "Private company shares trade in the dark. If everyone sees the orders, everyone trades
-> against them. If one operator hides them, you have to trust that operator not to peek, not to
-> favour anyone, and not to quietly pick the price. Kalyptra removes that operator."
+Place bob's, carol's and dave's orders first (bob sells 4 at 5; carol buys 6 at 5; dave buys 8 at 6),
+so on camera you only place alice's. Edit out any wait while wallets work: a cut is fine, a
+spinner is not.
 
-Show the landing page hero, then click **Launch app**.
+## Cold open: the problem (0:00-0:15)
 
-## Act 1: the feel (0:20-1:20)
+> "Private company shares trade in the dark. Show the orders and everyone trades against them;
+> hide them with one operator and you have to trust that operator. Kalyptra removes the operator:
+> the price is public, the participants are not."
+
+Landing page hero, then **Launch app**.
+
+## The order, sealed (0:15-0:45)
 
 1. **Trade, as alice:** sell 10 ACME at 4. Point at "3 of 3 nodes receipted it (needs 2)":
-   "The order is encrypted to a key no single node holds. Each node signs a receipt; it cannot
-   read it."
-2. **Switch Acting as to bob, carol, dave.** bob sells 4 at 5; carol buys 6 at 5; dave buys 8 at 6.
-3. **The guard, once:** as alice, try a second sell of ACME in the same round. Read the refusal
-   aloud: the gateway refuses because both parts would spend the same note. "It refuses what it
-   cannot settle, before it counts."
-4. **Rounds:** close round 1. Watch the node tracker: receipts, votes, shares released, signed.
-   "Only after two nodes signed the final set does any node release its share."
+   "Encrypted to a key split across three nodes. Each signs a receipt; none can read it."
+2. **The guard:** a second ACME sell in the same round is refused, before it is counted.
 
-## Act 2: the proof (1:20-2:30)
+## The close and the proof (0:45-1:35)
 
-5. **The price:** cleared at **5**, volume **14**. "Dave bid 6 and pays 5: one price for everyone."
-6. **The check:** the round shows **check clean**. "This is not the nodes saying so. The checker
-   recomputes the price from what they published."
-7. **Settle:** as each investor, press Settle. The leader assembles **one transaction**; show the
-   block number and the txid. Portfolio as alice: ACME 90, vUSD 50.
-8. **Cut to the terminal:** `bash scripts/demo.sh`, scrolled to step 5b. "Saved to a file, every
-   node stopped, verified offline. Now I change the price in the file from 5 to 6." Let
-   `VERIFICATION FAILED` sit on screen.
+3. **Rounds:** close the round. The node tracker fills: receipts, votes, shares, signatures.
+   "Nothing opens until two nodes sign the same final set."
+4. **The price:** cleared at **5**, volume **14**. "Dave bid 6 and pays 5: one price for everyone."
+   **Public check: Passed.** "Not the nodes saying so: anyone recomputes it from published data."
+5. **Settle** (cut the waiting): one transaction, block number and txid on screen. Portfolio:
+   alice ACME 90, vUSD 50.
 
-## Close: the thesis (2:30-3:00)
+## What stays private, and the close (1:35-2:00)
 
-> "Orders sealed until close, one public price anyone can check, private participants, and
-> settlement in a single atomic swap on Zcash Shielded Assets. 149 tests, every defence proven
-> by switching it off. It runs on a local regtest chain today, because ZSA swaps are not on a
-> public network yet. Thank you."
+> "Who placed each order is never published: every order has its own one-time key, and holdings
+> stay shielded on chain. Only the anonymous orders are opened after the close, so the price can
+> be checked. 149 tests, every defence proven by switching it off, settlement on a real Zcash
+> regtest chain. Kalyptra."
 
-Stop talking.
+Stop. If you have spare seconds, the strongest extra shot is `bash scripts/demo.sh` step 5b: a
+saved round with the price changed from 5 to 6, rejected offline (`VERIFICATION FAILED`).
 
 ---
 
