@@ -67,6 +67,9 @@ pub struct SettleOptions {
     /// If set, the assets are re-read from this file before each settlement, so a company
     /// listed after the node started can settle too.
     pub assets_file: Option<PathBuf>,
+    /// How long the next node in turn waits, once it holds every part, before checking that
+    /// the round's leader has taken the settlement up (and taking it over if not).
+    pub takeover_after: Duration,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -135,6 +138,11 @@ struct State {
     settle: Option<SettleOptions>,
     settlements: BTreeMap<u64, Settlement>,
     jobs: Vec<Job>,
+    /// Rounds this node settles in place of a leader that did not take them up.
+    acting: BTreeSet<u64>,
+    /// Rounds whose leader this node (next in turn) is to check on, once the lock is released.
+    watches: Vec<u64>,
+    watched: BTreeSet<u64>,
 }
 
 pub struct NodeHandle {
@@ -502,8 +510,18 @@ impl State {
     }
 
     fn leader_of(&self, round: u64) -> u16 {
+        if self.acting.contains(&round) {
+            return self.identity.id;
+        }
         let ids: Vec<u16> = self.roster_j.nodes.iter().map(|n| n.id).collect();
         leader(&ids, round).expect("the roster is not empty")
+    }
+
+    /// The node that takes a round's settlement over when its leader does not: the next in
+    /// turn after the leader.
+    fn backup_of(&self, round: u64) -> u16 {
+        let ids: Vec<u16> = self.roster_j.nodes.iter().map(|n| n.id).collect();
+        leader(&ids, round.wrapping_add(1)).expect("the roster is not empty")
     }
 
     fn on_settle(&mut self, round: u64, j: SettleJ) -> HttpResult {
@@ -531,6 +549,7 @@ impl State {
             leg.order
         ));
         self.maybe_assemble(round);
+        self.maybe_watch_leader(round);
         Ok(serde_json::json!({ "order": leg.order }))
     }
 
@@ -564,6 +583,43 @@ impl State {
         self.log(format!("round {round}: retrying the settlement"));
         self.maybe_assemble(round);
         self.settlement_view(round)
+    }
+
+    /// As the next node in turn, once every part is in, check on the leader later: a leader
+    /// that was down when the round opened never learns it, and would hold it up for good.
+    fn maybe_watch_leader(&mut self, round: u64) {
+        if self.settle.is_none()
+            || self.backup_of(round) != self.identity.id
+            || self.leader_of(round) == self.identity.id
+            || self.watched.contains(&round)
+        {
+            return;
+        }
+        let Ok((_, ls)) = self.final_record(round) else {
+            return;
+        };
+        let s = self.settlements.entry(round).or_default();
+        if ls.is_empty() || !ls.iter().all(|l| s.parts.contains_key(&l.order)) {
+            return;
+        }
+        self.watched.insert(round);
+        self.watches.push(round);
+    }
+
+    /// Take a round's settlement over from its leader, and assemble it if every part is in.
+    fn take_over(&mut self, round: u64, why: &str) {
+        let leader = self.leader_of(round);
+        if !self.acting.insert(round) {
+            return;
+        }
+        crate::log::event(
+            "warn",
+            &format!("node {}", self.identity.id),
+            "settlement taken over",
+            serde_json::json!({ "round": round, "leader": leader, "why": why }),
+        );
+        self.log(format!("round {round}: taking the settlement over ({why})"));
+        self.maybe_assemble(round);
     }
 
     /// As the round's leader, once every leg has its part, queue the assembly.
@@ -889,6 +945,45 @@ fn dispatch(id: u16, outbox: Vec<(String, Value)>) {
 
 /// Run one assembly, then record the outcome. Parts that did not match their legs are dropped
 /// so their owners can hand in new ones; the others are kept.
+/// Wait, then ask the round's leader how its settlement stands. Take it over if the leader
+/// does not answer, does not have the round, or has not started although every part was
+/// handed to every node. Two nodes assembling the same round cannot both land: the chain
+/// refuses to spend the same notes twice.
+fn watch_leader(st: Arc<Mutex<State>>, round: u64) {
+    let (url, wait) = {
+        let s = st.lock().expect("node state lock");
+        let lead = s.leader_of(round);
+        let Ok(node) = s.roster_j.node(lead) else {
+            return;
+        };
+        let wait = s.settle.as_ref().map(|o| o.takeover_after);
+        (format!("{}/v1/rounds/{round}/settlement", node.url), wait)
+    };
+    let Some(wait) = wait else { return };
+    thread::sleep(wait);
+    let why = match ureq::get(&url).timeout(Duration::from_secs(5)).call() {
+        Ok(r) => match r.into_json::<SettlementJ>() {
+            Ok(v) if v.status == "collecting" => Some("the leader has not started it".to_string()),
+            Ok(_) => None,
+            Err(e) => Some(format!("the leader's answer is unreadable: {e}")),
+        },
+        Err(ureq::Error::Status(code, _)) => Some(format!(
+            "the leader answers {code}: it does not have the round"
+        )),
+        Err(e) => Some(format!("the leader does not answer: {e}")),
+    };
+    let Some(why) = why else { return };
+    let jobs = {
+        let mut s = st.lock().expect("node state lock");
+        s.take_over(round, &why);
+        std::mem::take(&mut s.jobs)
+    };
+    for job in jobs {
+        let st = st.clone();
+        thread::spawn(move || run_job(st, job));
+    }
+}
+
 fn run_job(st: Arc<Mutex<State>>, job: Job) {
     let outcome = (|| -> Result<Assembled, String> {
         std::fs::create_dir_all(&job.dir).map_err(|e| e.to_string())?;
@@ -1015,6 +1110,9 @@ pub fn spawn(server: tiny_http::Server, opts: NodeOptions) -> Result<NodeHandle,
         settle: opts.settle,
         settlements: BTreeMap::new(),
         jobs: Vec::new(),
+        acting: BTreeSet::new(),
+        watches: Vec::new(),
+        watched: BTreeSet::new(),
     };
     // a missing file is "no listings yet"; one that exists but cannot be read stops the node,
     // or it would forget what it has signed and could sign a conflicting listing
@@ -1059,19 +1157,24 @@ pub fn spawn(server: tiny_http::Server, opts: NodeOptions) -> Result<NodeHandle,
             }
             let method = req.method().clone();
             let path = req.url().split('?').next().unwrap_or("").to_string();
-            let (result, outbox, jobs) = {
+            let (result, outbox, jobs, watches) = {
                 let mut s = st.lock().expect("node state lock");
                 let r = s.route(&method, &path, &body);
                 (
                     r,
                     std::mem::take(&mut s.outbox),
                     std::mem::take(&mut s.jobs),
+                    std::mem::take(&mut s.watches),
                 )
             };
             dispatch(id, outbox);
             for job in jobs {
                 let st = st.clone();
                 thread::spawn(move || run_job(st, job));
+            }
+            for round in watches {
+                let st = st.clone();
+                thread::spawn(move || watch_leader(st, round));
             }
             respond(req, result);
         }

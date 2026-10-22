@@ -24,8 +24,9 @@ code_files() {
     grep -v '^scripts/guardrails\.sh$'
 }
 
-# 1. every URL is loopback, one of the hosts the build downloads from, or this project's repo
-allowed='^https?://(127\.0\.0\.1|localhost|\[::1\])([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation|github\.com/Dami904/kalyptra)(/|$)'
+# 1. every URL is loopback, one of the hosts the build downloads from, or this project's repo.
+#    Tests may also name a host under `.example` (reserved by RFC 2606: it never resolves).
+allowed='^https?://(127\.0\.0\.1|localhost|\[::1\]|[a-z0-9.-]+\.example)([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation|github\.com/Dami904/kalyptra)(/|$)'
 urls=$(code_files | xargs grep -noE 'https?://[^ "'"'"'`)<>{}\\]+' 2>/dev/null |
   awk -F: '{ url=$0; sub(/^[^:]*:[^:]*:/, "", url); print $1":"$2" "url }' |
   while read -r where url; do

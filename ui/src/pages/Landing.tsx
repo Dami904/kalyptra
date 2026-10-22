@@ -36,7 +36,7 @@ const assets = [
 ];
 
 const evidence = [
-  ["149", "automated tests, passing on every push in CI"],
+  ["153", "automated tests, passing on every push in CI"],
   ["44", "defences, each proven needed by switching it off and watching a test fail"],
   ["4", "protocol holes our own attack tests found, then fixed"],
   ["3", "separate node processes run a round over the network"],

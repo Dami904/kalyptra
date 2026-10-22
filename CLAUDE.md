@@ -66,6 +66,7 @@ by hand, not in CI.
 - `docs/THREAT_MODEL.md`: who is trusted, and what happens if each key is compromised.
 - `docs/ACCESS_CONTROL.md`: the settlement gate reviewed against the `onchain-access-control` patterns.
 - `docs/RUNOFSHOW.md`: the scripted demo, with what to do when a step fails.
+- `docs/EVIDENCE.md`: the 1,000-round soak and the real-chain scenario runs, and what they found.
 - `PLAN.md` (design, progress, decisions) and `ATTACKS.md` (every attack, who stops it, which test).
 
 ## Review gates

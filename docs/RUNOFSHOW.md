@@ -52,13 +52,20 @@ Landing page hero, then **Launch app**.
 
 ## What stays private, and the close (1:35-2:00)
 
+6. **The refusal (the beat a sharp judge would try).** `bash scripts/demo.sh` step 5b: the saved
+   round with the price changed from 5 to 6, checked offline with every node stopped:
+   `VERIFICATION FAILED`. "Nobody has to trust the nodes for the price, and a forged one is
+   caught." Let it sit for two seconds.
+
 > "Who placed each order is never published: every order has its own one-time key, and holdings
 > stay shielded on chain. Only the anonymous orders are opened after the close, so the price can
-> be checked. 149 tests, every defence proven by switching it off, settlement on a real Zcash
-> regtest chain. Kalyptra."
+> be checked. 153 tests, every defence proven by switching it off, settlement on a real Zcash
+> regtest chain."
 
-Stop. If you have spare seconds, the strongest extra shot is `bash scripts/demo.sh` step 5b: a
-saved round with the price changed from 5 to 6, rejected offline (`VERIFICATION FAILED`).
+Then say the limit out loud, before a judge finds it: "Today the three nodes run on one machine,
+on a local regtest chain; real use puts each node with a different operator. Kalyptra."
+
+Stop.
 
 ---
 

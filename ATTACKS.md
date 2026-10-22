@@ -79,7 +79,11 @@ Each row is something a cheater tries, who or what stops it, and the test that p
 |---|---|---|
 | Place an order the wallet cannot pay for (so it is counted but can never settle) | Prevented: refused at placement, counting funds the same investor already committed to open orders | `an_order_the_wallet_cannot_pay_for_is_refused` |
 | List a symbol as two different assets, or one asset under two symbols | Prevented: each node refuses the second listing | `a_company_is_listed_and_a_round_settled_through_the_gateway` |
+| One node is down when a round is opened or closed | The other `t` run the round: the command succeeds when `t` nodes take it, and names any that did not | `a_round_opens_closes_and_clears_with_any_one_node_down`; 1,000-round soak (`docs/EVIDENCE.md`) |
+| A round's settlement leader is down, or never learned the round | The next node in turn holds every part too, checks on the leader and takes the settlement over; the chain refuses a second spend if both assemble | `a_round_whose_leader_never_saw_it_is_settled_by_the_next_node`; on the regtest chain in `docs/EVIDENCE.md` |
 | A node answers a listing with a signature from the wrong key | Not counted: every signature is checked against the roster | `a_listing_signature_that_does_not_verify_is_not_counted` |
+| A web page from another site, open in the investor's browser, reads their open orders (side, size, limit) from the gateway on `127.0.0.1`, or places, closes or settles orders | Prevented: no CORS header is ever sent, and a request whose `Origin` is another site is refused (403), preflight included | `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` |
+| The same through DNS rebinding (another site's name pointed at `127.0.0.1`, so the browser treats it as same-origin) | Prevented: a request whose `Host` is not this machine is refused | `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` |
 
 ## The checker itself
 

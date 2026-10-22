@@ -289,6 +289,7 @@ fn run(cli: Cli) -> Result<(), String> {
                     wallet: Wallet::new(tool, wallet),
                     assets: read_json::<AssetsJ>(&assets)?,
                     assets_file: Some(assets),
+                    takeover_after: std::time::Duration::from_secs(20),
                 }),
                 _ => None,
             };

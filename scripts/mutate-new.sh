@@ -106,5 +106,24 @@ mutate "an order's ticket is dropped when a node gave no answer" $N/src/gateway.
   's/let kept = !\(sent\.receipts\.is_empty\(\) && sent\.refused == n\);/let kept = !sent.receipts.is_empty();/' \
   -p kalyptra-node --test http
 
+mutate "a request for another host name is served (DNS rebinding)" $N/src/gateway.rs \
+  's/Some\(h\) if is_loopback\(&h\) => \{\}/Some(_) => {}/' \
+  -p kalyptra-node --test http a_web_page
+mutate "a page from another site may call the gateway" $N/src/gateway.rs \
+  's/if !local \{/if false {/' \
+  -p kalyptra-node --test http a_web_page
+
+mutate "an operator command needs every node, not t of them" $N/src/client.rs \
+  's/if ok >= roster\.threshold as usize \{/if failed.is_empty() {/' \
+  -p kalyptra-node --test http any_one_node_down
+mutate "nobody takes a round over when its leader never saw it" $N/src/server.rs \
+  's/        self\.maybe_watch_leader\(round\);\n//' \
+  -p kalyptra-node --test http leader_never_saw_it
+mutate "the backup takes over a leader that is alive and done" $N/src/server.rs \
+  's/            Ok\(_\) => None,/            Ok(_) => Some("x".to_string()),/' \
+  -p kalyptra-node --test http a_round_settles_once
+mutate "the first view that is not collecting wins" $N/src/client.rs \
+  's/if best\n            \.as_ref\(\)\n            \.is_none_or\(\|b\| rank\(&v\.status\) > rank\(&b\.status\)\)/if best.is_none()/' \
+  -p kalyptra-node --lib
 [ "$fail" = 0 ] && echo "every new defence is load-bearing" || echo "SOME DEFENCES ARE NOT TESTED"
 exit $fail

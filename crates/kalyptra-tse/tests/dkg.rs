@@ -3,6 +3,7 @@
 use std::collections::BTreeMap;
 use std::sync::mpsc;
 use std::thread;
+use std::time::Duration;
 
 use kalyptra_tse::{open, partial_decrypt, seal, Error, GroupKey, NodeKey, Participant};
 use rand_core::OsRng;
@@ -90,19 +91,26 @@ fn nodes_running_in_separate_threads_with_channels_between_them_complete_the_dkg
                         tx.send((false, r1.clone())).unwrap();
                     }
                 }
+                // A faster node may send its round 2 message before this one has all of
+                // round 1, as on a real network: keep it for later instead of failing. A
+                // timeout turns a lost message into a failure rather than a hang.
+                let wait = Duration::from_secs(30);
                 let mut got_r1 = vec![r1];
+                let mut got_r2 = Vec::new();
                 while got_r1.len() < n as usize {
-                    let (is2, b) = rx.recv().unwrap();
-                    assert!(!is2, "round 2 message arrived before round 1 finished");
-                    got_r1.push(b);
+                    let (is2, b) = rx.recv_timeout(wait).expect("a round 1 message");
+                    if is2 {
+                        got_r2.push(b);
+                    } else {
+                        got_r1.push(b);
+                    }
                 }
                 for m in me.round2(&got_r1).unwrap() {
                     txs[m.to as usize - 1].send((true, m.bytes)).unwrap();
                 }
-                let mut got_r2 = Vec::new();
                 while got_r2.len() < n as usize - 1 {
-                    let (is2, b) = rx.recv().unwrap();
-                    assert!(is2);
+                    let (is2, b) = rx.recv_timeout(wait).expect("a round 2 message");
+                    assert!(is2, "a second round 1 message from the same node");
                     got_r2.push(b);
                 }
                 me.round3(&got_r1, &got_r2).unwrap()

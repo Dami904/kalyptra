@@ -29,6 +29,21 @@ What is explicitly NOT handled. Dates are when each was last checked against the
   15-20 minutes for that reason.
 
 ## Protocol
+
+- **A round's settlement needs its leader or its backup.** The leader is `ids[round % n]`;
+  if it has not started 20 s after the next node in turn holds every part (it is down, or
+  was down when the round opened and never learned it), that node takes the settlement over.
+  If both are unavailable, the settlement waits for one of them. Nothing moves meanwhile.
+- **A node that was down when a round opened does not catch up on it.** The other `t` run
+  the round; the returning node takes part from the next round on.
+- **The takeover check runs once.** The backup asks the leader a single time, 20 s after it
+  holds every part. A leader that is only slow at that moment can be taken over, and both may
+  assemble: the chain lands one transaction, the other node reports `failed`, and the page
+  shows the settled one (the most advanced status wins). If the backup restarts inside those
+  20 s, nobody takes over until the parts are handed in again.
+- **Settlement status lives in memory.** A node that restarts after settling forgets that it
+  did; a later retry on it is refused by the chain (the notes are spent) and shows as
+  `failed`, though the round did settle. Persisting the settled transaction id would fix it.
 - **`t` colluding nodes can read orders early** (the security threshold) and can stall or void a
   round. See [`THREAT_MODEL.md`](THREAT_MODEL.md).
 - **Late receipts.** A node that votes again before a peer's receipts reach it simply joins a
@@ -39,8 +54,11 @@ What is explicitly NOT handled. Dates are when each was last checked against the
 - **Not audited.** AI review only.
 
 ## App
-- **One machine holds every demo investor's wallet.** In real use each investor runs their own
-  gateway.
+- **One machine holds every demo investor's wallet.** The page's "Acting as" switch picks one
+  per request, with no login: anything on that machine that can reach the gateway's port acts
+  as every investor on it. Web pages from other sites are refused (by `Origin` and `Host`), but
+  local programs are not. In real use each investor runs their own gateway, holding only their
+  own wallet.
 - **Listing a company** is signed by the nodes but nothing checks the company is real.
 - **Linux or WSL only** for the full stack. There is no `docker compose`.
 - **Phone-size layout** was checked only in a browser pane at 375 px (no horizontal overflow on

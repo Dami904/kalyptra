@@ -1,6 +1,8 @@
 //! Three matcher nodes on localhost ports, talking only over HTTP: distributed key generation,
 //! a full round, and the public checker.
 
+use std::collections::BTreeMap;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -228,6 +230,320 @@ fn a_restarted_node_reloads_its_share_and_keeps_working() {
     );
 }
 
+#[test]
+fn a_round_opens_closes_and_clears_with_any_one_node_down() {
+    let mut c = start(3, 2);
+    client::wait_for_keys(&c.roster, Duration::from_secs(60)).unwrap();
+    for (round, down) in [(1u64, 0usize), (2, 2)] {
+        // node 1 first: the operator commands used to stop at the first node that did not answer
+        let addr = c.handles[down].as_ref().unwrap().addr;
+        c.handles[down].take().unwrap().stop();
+        client::open_round(&c.roster, round, MARKET, 2).expect("2 of 3 nodes can open a round");
+        client::submit_order(&c.roster, round, MARKET, Side::Sell, 5, 3).unwrap();
+        client::submit_order(&c.roster, round, MARKET, Side::Buy, 5, 4).unwrap();
+        // as a real round does by its close: both orders have reached both live nodes. (Closed
+        // on different receipts with the third node away, two nodes cannot prove the other's
+        // vote dead, so the round would wait for it: a documented limit, not what this tests.)
+        wait_envelopes(&c, round, 2);
+        client::close_round(&c.roster, round).expect("2 of 3 nodes can close it");
+        assert!(matches!(
+            client::wait_final(&c.roster, round, Duration::from_secs(60)).unwrap(),
+            Outcome::Cleared(_)
+        ));
+        start_again(&mut c, down, addr);
+    }
+    // with two nodes down, the operator is told plainly
+    c.handles[0].take().unwrap().stop();
+    c.handles[1].take().unwrap().stop();
+    let err = client::open_round(&c.roster, 3, MARKET, 2).unwrap_err();
+    assert!(err.contains("1 of 3"), "{err}");
+}
+
+// ---- many rounds under different situations ------------------------------------------------
+
+/// Stop node `i` (0-based) and start it again on the same address from its saved files only.
+fn restart(c: &mut Cluster, i: usize) {
+    let addr = c.handles[i].as_ref().unwrap().addr;
+    c.handles[i].take().unwrap().stop();
+    start_again(c, i, addr);
+}
+
+fn start_again(c: &mut Cluster, i: usize, addr: SocketAddr) {
+    let server = (0..100)
+        .find_map(|_| {
+            std::thread::sleep(Duration::from_millis(50));
+            tiny_http::Server::http(addr).ok()
+        })
+        .expect("rebind the node's address");
+    let identity =
+        NodeIdentity::load(&kalyptra_node::files::key_path(&c.dir, i as u16 + 1)).unwrap();
+    c.handles[i] = Some(spawn_node(server, identity, &c.roster, &c.dir));
+}
+
+/// Wait until every node that is up has seen `envelopes` envelopes.
+fn wait_envelopes(c: &Cluster, round: u64, envelopes: usize) {
+    for _ in 0..400 {
+        let up: Vec<String> = c
+            .handles
+            .iter()
+            .zip(c.roster.urls())
+            .filter(|(h, _)| h.is_some())
+            .map(|(_, u)| u)
+            .collect();
+        if up.iter().all(|u| {
+            client::get::<PublicRoundJ>(&format!("{u}/v1/rounds/{round}/public"))
+                .map(|p| p.envelopes.len() == envelopes)
+                .unwrap_or(false)
+        }) {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(25));
+    }
+    panic!("round {round}: envelopes did not reach every live node");
+}
+
+fn rnd(below: u64) -> u64 {
+    OsRng.next_u64() % below
+}
+
+/// The clearing price found a second way, written apart from `auction::clear`: the candidate
+/// prices are the orders' own limits (published rule 1), and the winner has the most volume,
+/// then the least imbalance, then the lowest price. (A first version also tried the prices
+/// between limits. That is a different rule: between two limits, demand is the upper limit's
+/// and supply the lower one's, so an in-between price can tie on volume with less imbalance.
+/// The soak run caught the difference; the published rule only ever clears at a stated limit.)
+fn reference_clearing(orders: &[(Side, u64, u64)]) -> (Option<u64>, u64) {
+    let mut limits: Vec<u64> = orders.iter().map(|o| o.2).collect();
+    limits.sort_unstable();
+    limits.dedup();
+    let mut best: Option<(u128, u128, u64)> = None;
+    for p in limits {
+        let d: u128 = orders
+            .iter()
+            .filter(|o| o.0 == Side::Buy && o.2 >= p)
+            .map(|o| o.1 as u128)
+            .sum();
+        let s: u128 = orders
+            .iter()
+            .filter(|o| o.0 == Side::Sell && o.2 <= p)
+            .map(|o| o.1 as u128)
+            .sum();
+        let key = (d.min(s), d.abs_diff(s), p);
+        let better = match best {
+            None => true,
+            Some((v, i, _)) => key.0 > v || (key.0 == v && key.1 < i),
+        };
+        if better {
+            best = Some(key);
+        }
+    }
+    match best {
+        Some((v, _, p)) if v > 0 => (Some(p), v as u64),
+        _ => (None, 0),
+    }
+}
+
+/// Every rule a cleared record must keep, checked from the record alone.
+fn check_fills(r: &kalyptra_node::wire::RecordJ) {
+    let price = r.price;
+    let mut bought = 0u64;
+    let mut sold = 0u64;
+    for f in &r.fills {
+        let (_, o) = r
+            .orders
+            .iter()
+            .find(|(id, _)| *id == f.id)
+            .expect("every fill is a known order");
+        assert_eq!(f.side, o.side, "a fill keeps its order's side");
+        assert!(
+            f.quantity > 0 && f.quantity <= o.size,
+            "a fill is within its order"
+        );
+        let p = price.expect("a fill needs a price");
+        if o.side == "buy" {
+            assert!(o.limit >= p, "no buyer pays above its limit");
+            bought += f.quantity;
+        } else {
+            assert!(o.limit <= p, "no seller receives below its limit");
+            sold += f.quantity;
+        }
+    }
+    assert_eq!(bought, r.volume, "bought = volume");
+    assert_eq!(sold, r.volume, "sold = volume");
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum Situation {
+    Normal,
+    ManyTies,
+    NothingCrosses,
+    TooFewOrders,
+    GarbageEnvelope,
+    SentTwice,
+    NodeDownBeforeOpen,
+    NodeDownBeforeClose,
+    NodeRestarted,
+}
+
+const SITUATIONS: [Situation; 9] = [
+    Situation::Normal,
+    Situation::ManyTies,
+    Situation::NothingCrosses,
+    Situation::TooFewOrders,
+    Situation::GarbageEnvelope,
+    Situation::SentTwice,
+    Situation::NodeDownBeforeOpen,
+    Situation::NodeDownBeforeClose,
+    Situation::NodeRestarted,
+];
+
+/// Many rounds through three real node processes, each round in a randomly chosen situation,
+/// each result checked against the reference clearing, the fill rules and the public checker.
+/// `SOAK_ROUNDS=1000 cargo test --release -p kalyptra-node --test http soak -- --ignored --nocapture`
+#[test]
+#[ignore = "long: run by hand for evidence (docs/EVIDENCE.md)"]
+fn soak_many_rounds_in_different_situations() {
+    let rounds: u64 = std::env::var("SOAK_ROUNDS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(200);
+    let mut c = start(3, 2);
+    client::wait_for_keys(&c.roster, Duration::from_secs(60)).unwrap();
+    let started = std::time::Instant::now();
+    // situation -> (rounds, cleared, voided, orders, volume)
+    let mut tally: BTreeMap<Situation, (u64, u64, u64, u64, u64)> = BTreeMap::new();
+    let mut total_orders = 0u64;
+
+    for round in 1..=rounds {
+        let sit = SITUATIONS[rnd(SITUATIONS.len() as u64) as usize];
+        let down = rnd(3) as usize;
+        let mut stopped: Option<SocketAddr> = None;
+        if sit == Situation::NodeDownBeforeOpen {
+            let addr = c.handles[down].as_ref().unwrap().addr;
+            c.handles[down].take().unwrap().stop();
+            stopped = Some(addr);
+        }
+
+        let n = match sit {
+            Situation::TooFewOrders => 1 + rnd(3),
+            _ => 2 + rnd(23),
+        };
+        let min_orders = if sit == Situation::TooFewOrders {
+            n as usize + 1
+        } else {
+            2
+        };
+        client::open_round(&c.roster, round, MARKET, min_orders)
+            .unwrap_or_else(|e| panic!("round {round} ({sit:?}): open failed: {e}"));
+
+        let mut orders = Vec::new();
+        for _ in 0..n {
+            let side = if rnd(2) == 0 { Side::Buy } else { Side::Sell };
+            let limit = match (sit, side) {
+                (Situation::NothingCrosses, Side::Buy) => 1 + rnd(5),
+                (Situation::NothingCrosses, Side::Sell) => 10 + rnd(5),
+                (Situation::ManyTies, _) => 4 + rnd(3),
+                _ => 1 + rnd(20),
+            };
+            let size = 1 + rnd(100);
+            let sealed = client::seal_order(&c.roster, round, MARKET, side, size, limit).unwrap();
+            let sent = client::send_order(&c.roster, round, &sealed.envelope).unwrap();
+            assert!(
+                sent.receipts.len() >= 2,
+                "round {round} ({sit:?}): an order got {} receipts",
+                sent.receipts.len()
+            );
+            if sit == Situation::SentTwice {
+                // the same envelope again: it must count once
+                client::send_order(&c.roster, round, &sealed.envelope).unwrap();
+            }
+            orders.push((side, size, limit));
+        }
+        if sit == Situation::GarbageEnvelope {
+            let mut junk = vec![0u8; 64 + rnd(200) as usize];
+            OsRng.fill_bytes(&mut junk);
+            let sent = client::send_order(&c.roster, round, &junk).unwrap();
+            assert!(sent.receipts.is_empty(), "random bytes get no receipt");
+        }
+        wait_envelopes(&c, round, orders.len());
+
+        if sit == Situation::NodeDownBeforeClose {
+            let addr = c.handles[down].as_ref().unwrap().addr;
+            c.handles[down].take().unwrap().stop();
+            stopped = Some(addr);
+        }
+        if sit == Situation::NodeRestarted {
+            restart(&mut c, down);
+        }
+        client::close_round(&c.roster, round)
+            .unwrap_or_else(|e| panic!("round {round} ({sit:?}): close failed: {e}"));
+
+        let outcome = client::wait_final(&c.roster, round, Duration::from_secs(60))
+            .unwrap_or_else(|e| panic!("round {round} ({sit:?}): {e}"));
+        let report = client::check(&c.roster, round).unwrap();
+        assert!(
+            report.is_clean(),
+            "round {round} ({sit:?}): the public check found {:?}",
+            report.findings
+        );
+        let t = tally.entry(sit).or_default();
+        t.0 += 1;
+        t.3 += n;
+        total_orders += n;
+        match outcome {
+            Outcome::Voided => {
+                assert_eq!(
+                    sit,
+                    Situation::TooFewOrders,
+                    "round {round} voided ({sit:?})"
+                );
+                assert!(report.voided);
+                for u in c.roster.urls() {
+                    if let Ok(p) =
+                        client::get::<PublicRoundJ>(&format!("{u}/v1/rounds/{round}/public"))
+                    {
+                        assert!(p.partials.is_empty(), "a voided round releases nothing");
+                    }
+                }
+                t.2 += 1;
+            }
+            Outcome::Cleared(r) => {
+                assert_ne!(sit, Situation::TooFewOrders, "round {round} should void");
+                assert_eq!(
+                    r.orders.len(),
+                    orders.len(),
+                    "round {round}: every order counted once"
+                );
+                let (price, volume) = reference_clearing(&orders);
+                assert_eq!(
+                    (r.price, r.volume),
+                    (price, volume),
+                    "round {round} ({sit:?}): differs from the reference clearing"
+                );
+                if sit == Situation::NothingCrosses {
+                    assert_eq!(r.volume, 0);
+                }
+                check_fills(&r);
+                let rec = report.recomputed.expect("the checker recomputed the round");
+                assert_eq!((rec.price, rec.volume), (r.price, r.volume));
+                t.1 += 1;
+                t.4 += r.volume;
+            }
+        }
+        if let Some(addr) = stopped {
+            start_again(&mut c, down, addr);
+        }
+    }
+
+    let secs = started.elapsed().as_secs_f64();
+    eprintln!("\nSOAK: {rounds} rounds, {total_orders} orders, {secs:.1} s");
+    eprintln!("| Situation | Rounds | Cleared | Voided | Orders | Volume |");
+    eprintln!("|---|---|---|---|---|---|");
+    for (s, (n, cl, vo, o, v)) in &tally {
+        eprintln!("| {s:?} | {n} | {cl} | {vo} | {o} | {v} |");
+    }
+}
+
 // ---- the local gateway: a round driven entirely through its JSON ---------------------------
 
 mod gw {
@@ -373,6 +689,85 @@ mod gw {
         assert_eq!(r["receipts"], 0, "{r}");
         assert!(r["ticket"].is_null(), "{r}");
         assert_eq!(saved(), 1, "only the earlier, uncertain ticket remains");
+        gw.stop();
+    }
+
+    /// Send one raw request, so the test can set the `Host` and `Origin` a hostile page
+    /// would send. Returns the status code and the response headers, lower-cased.
+    fn raw(
+        addr: &str,
+        method: &str,
+        path: &str,
+        host: &str,
+        origin: Option<&str>,
+    ) -> (u16, String) {
+        use std::io::{Read, Write};
+        let mut s = std::net::TcpStream::connect(addr).unwrap();
+        let origin = origin
+            .map(|o| format!("Origin: {o}\r\n"))
+            .unwrap_or_default();
+        let body = if method == "POST" { "{}" } else { "" };
+        write!(
+            s,
+            "{method} {path} HTTP/1.1\r\nHost: {host}\r\n{origin}Content-Type: application/json\r\nContent-Length: {}\r\n\r\n{body}",
+            body.len()
+        )
+        .unwrap();
+        // Read the head only: the server may keep the connection open after answering.
+        s.set_read_timeout(Some(Duration::from_secs(10))).unwrap();
+        let mut out = Vec::new();
+        let mut byte = [0u8; 1];
+        while !out.ends_with(b"\r\n\r\n") && s.read(&mut byte).unwrap_or(0) == 1 {
+            out.push(byte[0]);
+        }
+        let head = String::from_utf8_lossy(&out).to_ascii_lowercase();
+        let code = head
+            .split(' ')
+            .nth(1)
+            .and_then(|c| c.parse().ok())
+            .unwrap_or(0);
+        (code, head)
+    }
+
+    #[test]
+    fn a_web_page_from_another_site_cannot_read_or_drive_the_gateway() {
+        let c = start(3, 2);
+        let (gw, _base) = start_gateway(&c, vec![], &[]);
+        let addr = gw.addr.to_string();
+        let port = gw.addr.port();
+        let own = format!("127.0.0.1:{port}");
+
+        // The page itself, and the development server's proxy, are served from this machine.
+        let (code, head) = raw(&addr, "GET", "/api/tickets", &own, None);
+        assert_eq!(code, 200, "a same-origin read works: {head}");
+        assert!(
+            !head.contains("access-control-allow-origin"),
+            "no response tells a browser that other sites may read it: {head}"
+        );
+        let local = format!("http://localhost:{port}");
+        assert_eq!(raw(&addr, "GET", "/api/tickets", &own, Some(&local)).0, 200);
+
+        // Any other site, from the user's own browser: refused, read or write, and the
+        // preflight grants nothing.
+        let evil = Some("https://evil.example");
+        assert_eq!(raw(&addr, "GET", "/api/tickets", &own, evil).0, 403);
+        assert_eq!(raw(&addr, "POST", "/api/rounds/1/close", &own, evil).0, 403);
+        let (code, head) = raw(&addr, "OPTIONS", "/api/tickets", &own, evil);
+        assert!(
+            code == 403 && !head.contains("access-control-allow-origin"),
+            "a preflight from another site is refused: {code} {head}"
+        );
+
+        // DNS rebinding: another site's name pointed at this machine. The browser then
+        // thinks it is same-origin, but the Host header still carries that name.
+        let (code, _) = raw(
+            &addr,
+            "GET",
+            "/api/tickets",
+            &format!("evil.example:{port}"),
+            None,
+        );
+        assert_eq!(code, 403, "a request for another host name is refused");
         gw.stop();
     }
 
@@ -678,6 +1073,7 @@ esac
             wallet: Wallet::new(&tool, dir.join("leader-wallet")),
             assets: assets.clone(),
             assets_file: None,
+            takeover_after: Duration::from_millis(500),
         };
         let c = start_with(3, 2, dir, Some(settle));
         client::wait_for_keys(&c.roster, Duration::from_secs(60)).unwrap();
@@ -712,6 +1108,44 @@ esac
     fn view(e: &Env, r: u64, node: usize) -> SettlementJ {
         let url = &e.c.roster.nodes[node].url;
         client::get(&format!("{url}/v1/rounds/{r}/settlement")).unwrap()
+    }
+
+    #[test]
+    fn a_round_whose_leader_never_saw_it_is_settled_by_the_next_node() {
+        let mut e = env();
+        let r = 5; // leader: node ids [1, 2, 3][5 % 3] = node 3; the next one is node 1
+                   // node 3 is down from before the round opens, so it never learns the round at all
+        let addr = e.c.handles[2].as_ref().unwrap().addr;
+        e.c.handles[2].take().unwrap().stop();
+        client::open_round(&e.c.roster, r, MARKET, 2).unwrap();
+        let tickets: Vec<TicketJ> = [(Side::Sell, 6, 5), (Side::Buy, 6, 5)]
+            .iter()
+            .map(|(side, size, limit)| {
+                client::submit_order(&e.c.roster, r, MARKET, *side, *size, *limit)
+                    .unwrap()
+                    .1
+            })
+            .collect();
+        wait_envelopes(&e.c, r, 2);
+        client::close_round(&e.c.roster, r).unwrap();
+        assert!(matches!(
+            client::wait_final(&e.c.roster, r, Duration::from_secs(60)).unwrap(),
+            Outcome::Cleared(_)
+        ));
+        for (i, t) in tickets.iter().enumerate() {
+            assert!(matches!(
+                settle(&e, t, &format!("w{i}")),
+                Settled::Handed { accepted: 2, .. }
+            ));
+        }
+        // node 3 comes back, still without the round: the next node has already taken it up
+        start_again(&mut e.c, 2, addr);
+        let s = client::wait_settlement(&e.c.roster, r, Duration::from_secs(30)).unwrap();
+        assert_eq!(s.status, "settled", "{s:?}");
+        assert_eq!(s.leader, 1, "node 1, next in turn, took the round over");
+        assert_eq!(s.txid.as_deref(), Some("ab12cd"));
+        // and only one node assembled it
+        assert_eq!(view(&e, r, 1).status, "collecting");
     }
 
     #[test]
@@ -776,6 +1210,12 @@ esac
             },
         );
         assert!(late.is_err());
+
+        // the next node in turn (node 2) held every part too, but the leader settled: past the
+        // takeover wait, node 2 has not assembled anything
+        std::thread::sleep(Duration::from_millis(1500));
+        assert_eq!(view(&e, r, 1).status, "collecting");
+        assert!(!e.c.dir.join(format!("settle-node2-round{r}")).exists());
     }
 
     #[test]

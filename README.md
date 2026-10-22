@@ -3,7 +3,7 @@
 **Sealed-bid auctions for private company shares, on Zcash Shielded Assets.**
 
 [![CI](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml/badge.svg)](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml)
-[![Tests: 149 passing](https://img.shields.io/badge/tests-149%20passing-2ea44f)](#tests-and-evidence)
+[![Tests: 153 passing](https://img.shields.io/badge/tests-153%20passing-2ea44f)](#tests-and-evidence)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-kalyptra.vercel.app-black)](https://kalyptra.vercel.app)
 [![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](Cargo.toml)
@@ -61,15 +61,15 @@ system is not hosted. Everything below runs on one machine.
 
 | | |
 |---|---|
-| Tests | **149 passing** (`cargo test --workspace`), clippy `-D warnings`, rustfmt and rustdoc clean |
-| Attacks | **15 adversarial tests, two of them 600-case randomised "a clean check means an honest result" tests**; every defence was switched off in turn and a test failed each time (23, then 21 more) |
+| Tests | **153 passing** (`cargo test --workspace`), clippy `-D warnings`, rustfmt and rustdoc clean |
+| Attacks | **15 adversarial tests, two of them 600-case randomised "a clean check means an honest result" tests**; every defence was switched off in turn and a test failed each time (23, then 27 more) |
 | Independent check | 47 known-answer vectors re-derived by a separate Python and libsodium script that shares no code |
 | Settlement | A real round on a regtest chain settled in **one transaction**, all balances matched |
 
 The shortest path (no Docker, about a minute, Linux or WSL with Rust 1.85+):
 
 ```bash
-cargo test --workspace      # 149 tests
+cargo test --workspace      # 153 tests
 bash scripts/demo.sh        # three node processes run a whole round, then verify it offline
 ```
 
@@ -139,6 +139,15 @@ dave   ACME 8   vUSD 1960    (bought 8, paid 40)
 A company listed afterwards (`NOVA`, signed by 3 of 3 nodes) traded in a second round and
 settled at block 17 the same way.
 
+Every real-chain run, with what to check it against:
+
+| Date | Run | Result |
+|---|---|---|
+| 2026-10-15 | `scripts/run.sh`, round 1 through the page's API | Cleared at 5, volume 14, check clean; settled in one transaction at block 14 (`e19d96b4…432f`) |
+| 2026-10-15 | The same stack: `NOVA` listed by 3 of 3 nodes, then traded | Settled at block 17 |
+| 2026-10-21 | A fresh run directory: `settlement/setup.sh` re-run (idempotent), then `scripts/run.sh` and round 1 again | Cleared at 5, volume 14, no findings; all four legs in one transaction at block 14 (`a2e32f79d60181d1…3617dba9`); the same four balances |
+| 2026-10-21 | `scripts/soak_chain.py`: 11 rounds in different situations (refused orders, a voided round, no cross, the settlement leader down, a node restarted, a partial fill, repeats) | All 11 as expected; 9 settled in one transaction each (blocks 14 to 22), every balance reconciled after every round. Every round's bundle verifies offline, and each transaction was read back from the chain inside its block: [`evidence/2026-10-21/`](evidence/2026-10-21/), explained in [`docs/EVIDENCE.md`](docs/EVIDENCE.md) |
+
 ## The problem
 
 A private company's shares trade rarely and in secret. If the orders are visible, everyone
@@ -157,7 +166,8 @@ does not reproduce.
   line, offline verification, and a local **gateway** that serves the page.
 - **`ui`:** a React page (Rounds, Trade, List a company, Portfolio, Audit). It holds no keys.
 - **`settlement`:** a patch to QEDIT's `zcash_tx_tool` so each investor builds only their own part
-  of one swap, and the round's leader assembles them.
+  of one swap, and the round's leader assembles them (or the next node in turn, if the
+  leader has not taken it up).
 
 **The loop: seal, close, open together, clear, check from public data, settle atomically, audit
 with a viewing key.**
@@ -217,12 +227,13 @@ flowchart LR
 |---|---|---|
 | `kalyptra-tse` `threshold`, `dkg`, `fuzz_style`, `vectors` | 60 | Sealed envelopes, key generation, malformed input, known answers |
 | `kalyptra-matcher` `rounds`, `adversarial`, `auction`, `settlement`, `order` | 70 | Whole rounds, 15 adversarial tests, the auction rules, settlement terms |
-| `kalyptra-node` `http`, and a unit test | 19 | Three real processes, the gateway, offline verification, listings, funds check, damaged files, a race, settlement retry |
+| `kalyptra-node` `http`, and two unit tests | 23 | Three real processes, the gateway, offline verification, listings, funds check, damaged files, a race, settlement retry, pages from other sites refused, a node down, a leader that never saw its round |
 | `tools/check_vectors.py` | 47 vectors | A separate implementation derives the same bytes |
 | [`ATTACKS.md`](ATTACKS.md) | every attack | Each attack, who stops it, and the test that proves it |
+| [`docs/EVIDENCE.md`](docs/EVIDENCE.md) | 1,000 rounds, plus real-chain rounds | Nine situations (ties, no cross, too few orders, junk, duplicates, a node down or restarted) through three real nodes, then refusals, a voided round, a node down and partial fills on the chain, every balance reconciled; and the two bugs those runs found, now fixed |
 
 A passing test only means something if it can fail. Each defence was switched off, one at a time,
-and a test failed each time: 23 in the first pass, then 21 more
+and a test failed each time: 23 in the first pass, then 27 more
 (`bash scripts/mutate-new.sh`). Both passes found defences with no test that broke exactly that
 rule; each now has one.
 
@@ -242,13 +253,21 @@ rule; each now has one.
 
 ## What is staged, and what is real
 
-- **Real:** the key generation, sealing, voting, opening, clearing, checking, and the on-chain
-  settlement. The numbers above are from runs on 2026-10-15.
-- **Staged:** the four investors are four wallets on one machine, the three nodes are three
-  processes on one machine, and the chain is a throwaway local regtest chain. The assets
-  (ACME, BOLT, CRUX) are issued by us, and vUSD is play money with no peg.
-- **A stand-in** for the wallet tool is used in the automated gateway tests. The real wallet
-  commands are run by `scripts/demo-settle.sh` and `scripts/run.sh`, by hand.
+Written so a reviewer can tell a proof from a claim.
+
+- **Real, and run end to end:** key generation, sealing, receipts, voting, opening, clearing,
+  the public check, and the on-chain settlement on QEDIT's ZSA regtest node. The numbers above
+  are from runs on 2026-10-15 and 2026-10-21.
+- **Real, but on one machine:** the three nodes are three processes on one machine, run by one
+  operator, and the four investors are four wallets behind one gateway (the page's "Acting as"
+  switch). That shows the mechanism, not three independent operators: two nodes on one
+  operator's machine can read orders early, which is exactly the threshold.
+- **Simulated:** the chain is a throwaway local regtest chain; ACME, BOLT and CRUX are issued
+  by us; vUSD is play money with no peg. The hosted demo is sample data in the browser, with no
+  nodes or chain. The automated gateway tests use a stand-in for the wallet tool; the real
+  wallet commands run in `scripts/demo-settle.sh` and `scripts/run.sh`, by hand.
+- **Not done:** nodes with separate operators, a public network (ZSA swaps are not on one yet),
+  and an audit.
 
 ## What the page shows
 
@@ -289,7 +308,10 @@ The full list is in [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) and
 - **A wallet can settle one order per asset per round.** Found by running it for real; the
   gateway refuses the second such order. A failed or unknown settlement can be retried safely.
 - **The gateway is a local program.** Plain HTTP with no login, so it only listens on
-  `127.0.0.1`, on the investor's own machine.
+  `127.0.0.1`, on the investor's own machine. It also refuses requests from other sites' pages
+  in that machine's browser (by `Origin` and `Host`), so a web page cannot read open orders or
+  place one. The "Acting as" switch is a demo convenience: a real gateway holds one investor's
+  wallet.
 - **Rounds are periodic, not continuous.** That rhythm is the trade-off for one fair price.
 
 ## Tech stack

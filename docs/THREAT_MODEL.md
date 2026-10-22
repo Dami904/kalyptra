@@ -13,7 +13,7 @@ do, so the claims can be checked. Every attack listed as stopped has a named tes
 | **A matcher node's signing key** (Ed25519, separate from its share) | Signs receipts, commit votes, record votes, and company listings. |
 | **An order's one-time key** (made fresh per order, kept in the investor's gateway) | Authorises the settlement part of that one order. Nothing else. |
 | **An investor's wallet** | Holds that investor's assets. Builds and spends only its own part of a swap. |
-| **The settlement leader's wallet** (rotates, `ids[round % n]`) | Pays the fee and assembles the transaction. Holds none of the investors' assets, and cannot change an amount: the node rejects an unbalanced transaction. |
+| **The settlement leader's wallet** (rotates, `ids[round % n]`; the next node in turn takes over if the leader has not started) | Pays the fee and assembles the transaction. Holds none of the investors' assets, and cannot change an amount: the node rejects an unbalanced transaction. |
 | **An auditor's viewing key** (given by an investor) | Reads that investor's holdings. Cannot spend them. |
 | **The gateway** (`kalyptra serve`, one per investor machine) | Holds the investor's tickets and drives their wallet. Listens on loopback only. No login. |
 
@@ -55,8 +55,9 @@ do, so the claims can be checked. Every attack listed as stopped has a named tes
 
 1. Two colluding nodes on a single operator's machine: the demo's real trust boundary is that
    operator.
-2. The gateway has no login; anything that can reach its port acts as every investor wallet it
-   holds.
+2. The gateway has no login; any program on the machine that can reach its port acts as every
+   investor wallet it holds. (Web pages from other sites cannot: the gateway refuses another
+   site's `Origin` and any `Host` that is not this machine.)
 3. A settlement in the `unknown` state is not reconciled automatically; an operator must check balances before retrying (see [`LIMITATIONS.md`](LIMITATIONS.md)).
 4. Salt grinding for tie priority.
 

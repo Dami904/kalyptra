@@ -123,11 +123,37 @@ pub fn open_round(
         market: market.into(),
         min_orders,
     };
-    for url in roster.urls() {
-        post::<_, serde_json::Value>(&format!("{url}/v1/rounds"), &c)
-            .map_err(|e| format!("{url}: {e}"))?;
+    to_every_node(roster, "open the round", |url| {
+        post::<_, serde_json::Value>(&format!("{url}/v1/rounds"), &c).map(|_| ())
+    })
+}
+
+/// Send an operator command to every node, and succeed when at least `t` took it: one node
+/// being down must not stop a round that the other `t` can run. Fewer than `t` is an error
+/// that names each node that did not take it.
+fn to_every_node(
+    roster: &RosterJ,
+    what: &str,
+    send: impl Fn(&str) -> WireResult<()>,
+) -> WireResult<()> {
+    let urls = roster.urls();
+    let mut failed = Vec::new();
+    for url in &urls {
+        if let Err(e) = send(url) {
+            failed.push(format!("{url}: {e}"));
+        }
     }
-    Ok(())
+    let ok = urls.len() - failed.len();
+    if ok >= roster.threshold as usize {
+        Ok(())
+    } else {
+        Err(format!(
+            "could not {what}: only {ok} of {} nodes took it (need {}): {}",
+            urls.len(),
+            roster.threshold,
+            failed.join("; ")
+        ))
+    }
 }
 
 /// Sign an order with a FRESH key, seal it to the group for this round, and submit it to every
@@ -236,14 +262,13 @@ pub fn submit_order(
 }
 
 pub fn close_round(roster: &RosterJ, round_id: u64) -> WireResult<()> {
-    for url in roster.urls() {
+    to_every_node(roster, "close the round", |url| {
         post::<_, serde_json::Value>(
             &format!("{url}/v1/rounds/{round_id}/close"),
             &serde_json::json!({}),
         )
-        .map_err(|e| format!("{url}: {e}"))?;
-    }
-    Ok(())
+        .map(|_| ())
+    })
 }
 
 pub enum Outcome {
@@ -411,18 +436,54 @@ pub fn settle_order(
     Ok(Settled::Handed { leg, accepted })
 }
 
-/// Wait for the round's leader to report the settlement settled or failed.
+/// How a round's settlement stands, from the node settling it: the round's leader, or the next
+/// node in turn when that one took it over (a leader that was down when the round opened never
+/// learns the round). Both may have assembled; the chain lands at most one transaction, and
+/// the other node then reports "failed". So the view that is furthest along wins, whichever
+/// node holds it: a settled round always shows as settled.
+pub fn settlement_view(roster: &RosterJ, round_id: u64) -> WireResult<SettlementJ> {
+    let ids: Vec<u16> = roster.nodes.iter().map(|n| n.id).collect();
+    let lead = leader(&ids, round_id).ok_or("empty roster")?;
+    let next = leader(&ids, round_id.wrapping_add(1)).ok_or("empty roster")?;
+    let ask = |id: u16| -> Option<SettlementJ> {
+        let url = &roster.node(id).ok()?.url;
+        get(&format!("{url}/v1/rounds/{round_id}/settlement")).ok()
+    };
+    furthest([lead, next].into_iter().filter_map(ask).collect())
+        .ok_or_else(|| format!("neither node {lead} nor node {next} answers for round {round_id}"))
+}
+
+/// The view that is furthest along: settled (or nothing to settle), then unknown, failed,
+/// assembling, collecting. On a tie, the first (the round's own leader).
+fn furthest(views: Vec<SettlementJ>) -> Option<SettlementJ> {
+    let rank = |s: &str| match s {
+        "settled" | "nothing" => 5,
+        "unknown" => 4,
+        "failed" => 3,
+        "assembling" => 2,
+        _ => 1,
+    };
+    let mut best: Option<SettlementJ> = None;
+    for v in views {
+        if best
+            .as_ref()
+            .is_none_or(|b| rank(&v.status) > rank(&b.status))
+        {
+            best = Some(v);
+        }
+    }
+    best
+}
+
+/// Wait for the node settling the round to report it settled or failed.
 pub fn wait_settlement(
     roster: &RosterJ,
     round_id: u64,
     timeout: Duration,
 ) -> WireResult<SettlementJ> {
-    let ids: Vec<u16> = roster.nodes.iter().map(|n| n.id).collect();
-    let lead = leader(&ids, round_id).ok_or("empty roster")?;
-    let url = roster.node(lead)?.url.clone();
     let start = Instant::now();
     loop {
-        if let Ok(s) = get::<SettlementJ>(&format!("{url}/v1/rounds/{round_id}/settlement")) {
+        if let Ok(s) = settlement_view(roster, round_id) {
             if matches!(
                 s.status.as_str(),
                 "settled" | "failed" | "unknown" | "nothing"
@@ -433,8 +494,42 @@ pub fn wait_settlement(
                 return Ok(s);
             }
         } else if start.elapsed() > timeout {
-            return Err(format!("leader node {lead} does not answer"));
+            return settlement_view(roster, round_id);
         }
         std::thread::sleep(Duration::from_millis(500));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::furthest;
+    use crate::wire::SettlementJ;
+
+    fn v(leader: u16, status: &str) -> SettlementJ {
+        SettlementJ {
+            round_id: 5,
+            leader,
+            legs: vec![],
+            status: status.into(),
+            txid: (status == "settled").then(|| "ab12".into()),
+            height: None,
+            bad: vec![],
+            error: None,
+        }
+    }
+
+    #[test]
+    fn a_settled_view_wins_over_a_losing_nodes_failed_one() {
+        // the leader lost the race (the chain refused its second spend); the backup settled
+        let got = furthest(vec![v(3, "failed"), v(1, "settled")]).unwrap();
+        assert_eq!((got.leader, got.status.as_str()), (1, "settled"));
+        let got = furthest(vec![v(3, "unknown"), v(1, "settled")]).unwrap();
+        assert_eq!(got.leader, 1);
+        let got = furthest(vec![v(3, "assembling"), v(1, "failed")]).unwrap();
+        assert_eq!(got.status, "failed");
+        // a tie goes to the round's own leader, listed first
+        let got = furthest(vec![v(3, "collecting"), v(1, "collecting")]).unwrap();
+        assert_eq!(got.leader, 3);
+        assert!(furthest(vec![]).is_none());
     }
 }

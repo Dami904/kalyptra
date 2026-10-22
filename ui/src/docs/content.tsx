@@ -299,7 +299,7 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
         body: (
           <P>
             The terms come only from the signed record: a seller sends its fill of the base asset and receives fill × price of vUSD; a buyer the reverse. Each investor builds{" "}
-            <B>their own part</B> with their own wallet and signs it with the order's one-time key. The round's <B>leader</B> (node ids[round mod 3]) checks every part's amounts and
+            <B>their own part</B> with their own wallet and signs it with the order's one-time key. The round's <B>leader</B> (node ids[round mod 3], or the next node in turn if the leader has not taken it up) checks every part's amounts and
             assembles one transaction; the chain rejects any transaction that does not balance.
           </P>
         ),
@@ -399,7 +399,7 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
         body: (
           <P>
             The page holds no keys. Each order's one-time key is saved by your local gateway before the order is sent, and never sent to the page. The gateway only listens on a
-            loopback address, because it has no login.
+            loopback address, because it has no login, and it refuses requests from other sites' pages in your browser, so a web page you visit cannot read your open orders.
           </P>
         ),
       },
@@ -556,6 +556,7 @@ bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20
         body: (
           <P>
             The gateway (<C>kalyptra serve</C>, default <C>127.0.0.1:8787</C>) serves the page and a JSON API under <C>/api</C>. Add <C>?as=name</C> to act as one of its wallets.
+            It answers only this machine: a request whose <C>Host</C> or <C>Origin</C> names another site gets 403, and it sends no CORS headers.
             Errors come back as <C>{'{"error": "..."}'}</C> with a status code and are logged as one-line JSON.
           </P>
         ),
@@ -632,10 +633,10 @@ bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20
         body: (
           <Ul>
             <li>
-              <B>149 automated tests</B>, run on every push in CI with lint, docs, a Rust 1.85 build and the page build.
+              <B>153 automated tests</B>, run on every push in CI with lint, docs, a Rust 1.85 build and the page build.
             </li>
             <li>
-              <B>44 defences proven needed:</B> each switched off in turn, and a test failed every time.
+              <B>50 defences proven needed:</B> each switched off in turn, and a test failed every time.
             </li>
             <li>
               <B>47 known-answer vectors</B> re-derived by a separate Python and libsodium implementation.

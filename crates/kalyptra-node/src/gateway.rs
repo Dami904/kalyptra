@@ -26,7 +26,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 
 use kalyptra_matcher::order::Side;
-use kalyptra_matcher::settlement::{leader, market_assets};
+use kalyptra_matcher::settlement::market_assets;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use tiny_http::{Header, Method, Request, Response};
@@ -205,16 +205,20 @@ impl Inner {
     }
 
     fn settlement(&self, round: u64) -> Option<SettlementJ> {
-        let ids: Vec<u16> = self.roster.nodes.iter().map(|n| n.id).collect();
-        let lead = leader(&ids, round)?;
-        let url = &self.roster.node(lead).ok()?.url;
-        client::get(&format!("{url}/v1/rounds/{round}/settlement")).ok()
+        client::settlement_view(&self.roster, round).ok()
     }
 
-    /// Ask the round's leader to assemble again after a failed or unknown attempt.
+    /// Ask the node settling the round (its leader, or the node that took it over) to
+    /// assemble again after a failed or unknown attempt.
     fn retry_settlement(&self, round: u64) -> ApiResult {
-        let ids: Vec<u16> = self.roster.nodes.iter().map(|n| n.id).collect();
-        let lead = leader(&ids, round).ok_or_else(|| bad("no nodes"))?;
+        let view = client::settlement_view(&self.roster, round).map_err(fail)?;
+        if view.status == "settled" {
+            return Err((
+                409,
+                format!("round {round} has already settled: nothing to retry"),
+            ));
+        }
+        let lead = view.leader;
         let url = &self.roster.node(lead).map_err(fail)?.url;
         client::post::<_, Value>(&format!("{url}/v1/rounds/{round}/settle/retry"), &json!({}))
             .map_err(|e| match e.strip_prefix("HTTP 409: ") {
@@ -894,19 +898,25 @@ fn handle(inner: &Inner, mut req: Request) {
         q.split('&')
             .find_map(|kv| kv.strip_prefix("as=").map(str::to_string))
     });
-    // The page is served from this same origin; the open CORS header only matters for the
-    // development server, which runs on another port of the same machine.
-    let cors = [
-        header("Access-Control-Allow-Origin", "*"),
-        header("Access-Control-Allow-Methods", "GET, POST, OPTIONS"),
-        header("Access-Control-Allow-Headers", "Content-Type"),
-    ];
+    // Only this machine's own pages may use the gateway. Loopback-only binding keeps other
+    // machines out, but not a web page from another site open in this machine's browser:
+    // it could read an investor's orders before the close, or place and settle orders.
+    // So there is no CORS header at all (the page and the development server's proxy are
+    // same-origin), and a request is refused when its Origin is another site, or when its
+    // Host names another site (DNS rebinding: that site's name pointed at 127.0.0.1).
+    if let Err(why) = same_machine(&req) {
+        crate::log::event(
+            "warn",
+            "gateway",
+            "api request refused",
+            json!({ "method": method.to_string(), "path": path, "status": 403, "error": why }),
+        );
+        let msg = json!({ "error": why }).to_string();
+        let _ = req.respond(Response::from_string(msg).with_status_code(403));
+        return;
+    }
     if method == Method::Options {
-        let mut r = Response::empty(204);
-        for h in cors {
-            r.add_header(h);
-        }
-        let _ = req.respond(r);
+        let _ = req.respond(Response::empty(204));
         return;
     }
     if !path.starts_with("/api/") {
@@ -985,13 +995,47 @@ fn handle(inner: &Inner, mut req: Request) {
             (c, json!({ "error": m }).to_string())
         }
     };
-    let mut r = Response::from_string(out)
+    let r = Response::from_string(out)
         .with_status_code(code)
         .with_header(header("Content-Type", "application/json"));
-    for h in cors {
-        r.add_header(h);
-    }
     let _ = req.respond(r);
+}
+
+/// Is `host` (a Host header, or the part of an Origin after the scheme) this machine?
+fn is_loopback(host: &str) -> bool {
+    let name = match host.strip_prefix('[') {
+        Some(v6) => v6.split(']').next().unwrap_or(""),
+        None => host.split(':').next().unwrap_or(""),
+    };
+    matches!(
+        name.to_ascii_lowercase().as_str(),
+        "127.0.0.1" | "localhost" | "::1"
+    )
+}
+
+/// Refuse a request from another site's page: its `Host` must name this machine, and its
+/// `Origin`, when a browser sends one, must be a page served from this machine.
+fn same_machine(req: &Request) -> Result<(), String> {
+    let get = |name: &'static str| {
+        req.headers()
+            .iter()
+            .find(|h| h.field.equiv(name))
+            .map(|h| h.value.as_str().trim().to_string())
+    };
+    match get("Host") {
+        Some(h) if is_loopback(&h) => {}
+        Some(h) => return Err(format!("not served to host {h}")),
+        None => return Err("no Host header".into()),
+    }
+    if let Some(o) = get("Origin") {
+        let local = o
+            .strip_prefix("http://")
+            .is_some_and(|rest| !rest.contains('/') && is_loopback(rest));
+        if !local {
+            return Err(format!("not served to pages from {o}"));
+        }
+    }
+    Ok(())
 }
 
 /// Start the gateway on an already-bound server (bind first so tests can use port 0). Each
