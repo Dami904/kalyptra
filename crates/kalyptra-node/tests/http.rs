@@ -1,7 +1,7 @@
 //! Three matcher nodes on localhost ports, talking only over HTTP: distributed key generation,
 //! a full round, and the public checker.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -294,8 +294,19 @@ fn start_again(c: &mut Cluster, i: usize, addr: SocketAddr) {
     c.handles[i] = Some(spawn_node(server, identity, &c.roster, &c.dir));
 }
 
-/// Wait until every node that is up has seen `envelopes` envelopes.
+/// Wait until every node that is up has seen `envelopes` envelopes, each receipted by `t`
+/// nodes. A node votes on receipts, not envelopes: closing while a receipt is still on its way
+/// gives two live nodes different votes, and with the third node down the round then waits
+/// for it (seen on a loaded CI runner).
 fn wait_envelopes(c: &Cluster, round: u64, envelopes: usize) {
+    let t = c.roster.threshold as usize;
+    let receipted = |p: &PublicRoundJ| {
+        let mut by: BTreeMap<&str, BTreeSet<u16>> = BTreeMap::new();
+        for r in &p.receipts {
+            by.entry(r.envelope.as_str()).or_default().insert(r.node);
+        }
+        by.values().filter(|nodes| nodes.len() >= t).count()
+    };
     for _ in 0..400 {
         let up: Vec<String> = c
             .handles
@@ -306,7 +317,7 @@ fn wait_envelopes(c: &Cluster, round: u64, envelopes: usize) {
             .collect();
         if up.iter().all(|u| {
             client::get::<PublicRoundJ>(&format!("{u}/v1/rounds/{round}/public"))
-                .map(|p| p.envelopes.len() == envelopes)
+                .map(|p| p.envelopes.len() == envelopes && receipted(&p) == envelopes)
                 .unwrap_or(false)
         }) {
             return;

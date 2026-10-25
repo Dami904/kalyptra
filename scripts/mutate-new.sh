@@ -28,7 +28,7 @@ mutate() {
   crate=$(echo "$file" | sed -E 's|^crates/([^/]+)/.*|\1|')
   local tries
   for tries in 1 2 3; do
-    cargo test --no-run "$@" >/tmp/mutate.out 2>&1
+    cargo test --color never --no-run "$@" >/tmp/mutate.out 2>&1
     grep -q "Compiling $crate " /tmp/mutate.out && break
     # touching is not always seen there either: drop the crate's fingerprint so cargo must rebuild
     rm -rf "$CARGO_TARGET_DIR"/debug/.fingerprint/"$crate"-*
