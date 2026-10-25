@@ -1,0 +1,10 @@
+{
+  "round": 107,
+  "txid": "41f7fcdc0a27d11758d068725b757688146f26d5841037b96dfb9ea8a63b61d8",
+  "height": 98,
+  "block_hash": "c37408daefdbdbb8971ec621c3f425ae1bae8cbd5197c197440d1756b2ae897b",
+  "in_block": true,
+  "confirmations": 1,
+  "raw_bytes": 34291,
+  "raw": "round-107.tx.hex"
+}

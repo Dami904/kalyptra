@@ -8,6 +8,7 @@ Start the stack first (bash scripts/run.sh, in another terminal), then:
     python3 scripts/soak_chain.py            # the scenarios below, then N repeat rounds
     python3 scripts/soak_chain.py --repeat 6
     python3 scripts/soak_chain.py --evidence evidence/2026-10-21   # also keep checkable proof
+    python3 scripts/soak_chain.py --random 60     # then 60 rounds in random situations
 
 With --evidence, it saves only public data: each round's bundle (verify it offline with
 `kalyptra verify`), each settlement transaction as the chain itself reports it (id, block,
@@ -20,6 +21,7 @@ Stops and restarts a node to test outages: run it only against the stack run.sh 
 import argparse
 import json
 import os
+import random
 import signal
 import subprocess
 import time
@@ -37,7 +39,9 @@ TOOL = os.environ.get(
     "KALYPTRA_TOOL",
     os.path.expanduser("~/kalyptra-spike/txtool-kalyptra/target/release/zcash_tx_tool"),
 )
-INVESTORS = ["alice", "bob", "carol", "dave"]
+INVESTORS = ["alice", "bob", "carol", "dave", "issuer"]
+LISTED = ["ACME", "BOLT", "CRUX"]
+NEW_COMPANIES = ["NOVA", "ORBT", "PIXL", "QUIL", "RIFT", "SOLA", "TERN", "UMBR", "VALE", "WREN"]
 ROWS = []
 NOTES = []
 STARTED = []
@@ -191,7 +195,14 @@ def stop_node(i):
     print(f"    node {i} stopped")
 
 
+def node_up(i):
+    return subprocess.run(["pgrep", "-f", f"node --id {i} --dir nodes"],
+                          capture_output=True).returncode == 0
+
+
 def start_node(i):
+    if node_up(i):
+        return
     log = open(os.path.join(WORK, f"node-{i}-restarted.log"), "a")
     p = subprocess.Popen(node_cmd(i), cwd=WORK, stdout=log, stderr=log)
     STARTED.append(p)
@@ -226,6 +237,21 @@ def settle_all(rid, timeout=1800, mid=None):
     return owners, {"status": "still waiting"}
 
 
+def reference(orders):
+    """Price and volume by the published rules, computed here from the orders placed:
+    candidates are the limits; most volume, then least imbalance, then lowest price."""
+    best = None
+    for p in sorted({o[2] for o in orders}):
+        d = sum(o[1] for o in orders if o[0] == "buy" and o[2] >= p)
+        s_ = sum(o[1] for o in orders if o[0] == "sell" and o[2] <= p)
+        key = (min(d, s_), -abs(d - s_), -p)
+        if best is None or key > best[0]:
+            best = (key, p)
+    if best is None or best[0][0] == 0:
+        return None, 0
+    return best[1], best[0][0]
+
+
 def expected(before, owners, market, price):
     base, quote = market.split("/")
     want = json.loads(json.dumps(before))
@@ -240,6 +266,7 @@ def expected(before, owners, market, price):
 def run(rid, market, situation, orders, min_orders=2, expect="settled", before_close=None,
         before_open=None, after=None, mid_settle=None):
     print(f"\nround {rid} [{situation}] {market}")
+    began = time.time()
     if before_open:
         before_open()
     if rid != 1:  # run.sh opens round 1 itself
@@ -265,6 +292,11 @@ def run(rid, market, situation, orders, min_orders=2, expect="settled", before_c
     price, volume = rec.get("price"), rec.get("volume", 0)
     print(f"    {phase}: price {price}, volume {volume}, public check "
           f"{'clean' if clean else check}")
+    placed = [(side, size, limit) for who, side, size, limit, ok in orders if ok]
+    ref = reference(placed) if phase == "cleared" else (None, 0)
+    matches = (price, volume) == ref
+    if not matches:
+        print(f"    REFERENCE MISMATCH: nodes {price}/{volume}, reference {ref[0]}/{ref[1]}")
     if phase == "voided":
         settled, recon = "nothing opened", balances() == before
     elif not price:
@@ -282,17 +314,102 @@ def run(rid, market, situation, orders, min_orders=2, expect="settled", before_c
     if EVIDENCE:
         keep_round(rid, (call("GET", f"/rounds/{rid}")[1] or {}).get("settlement"))
     ok = (phase == ("voided" if expect == "voided" else "cleared")) and clean and recon and (
-        expect != "settled" or settled.startswith("settled"))
+        expect != "settled" or settled.startswith("settled")) and matches
     ROWS.append((rid, situation, market, len(orders) - refused, refused,
                  "voided" if phase == "voided" else f"{price} / {volume}",
-                 "clean" if clean else "FINDINGS", settled, "yes" if recon else "NO",
-                 "as expected" if ok else "NOT AS EXPECTED"))
+                 "yes" if matches else "NO", "clean" if clean else "FINDINGS", settled,
+                 "yes" if recon else "NO", "as expected" if ok else "NOT AS EXPECTED",
+                 f"{time.time() - began:.0f}"))
+    print(f"    round took {time.time() - began:.0f} s")
+
+
+def list_company(rng):
+    """The issuer lists a new company: issued on chain, signed by the nodes."""
+    symbol = NEW_COMPANIES[len(LISTED) - 3]
+    supply = rng.choice([500, 1000, 2000])
+    code, out = call("POST", "/assets", "issuer", {"symbol": symbol, "amount": supply, "finalize": True})
+    print(f"\nlisting {symbol} ({supply} shares, supply capped): {code} {out}")
+    if code != 200:
+        raise SystemExit(f"listing {symbol} failed: {code} {out}")
+    LISTED.append(symbol)
+    return symbol
+
+
+def random_round(rid, rng, k):
+    """One round in a random situation, built from what the wallets hold right now."""
+    situation = rng.choices(
+        ["plain", "refused", "voided", "nothing crosses", "all at one limit", "sell everything",
+         "leader down", "node down", "node restarted"],
+        weights=[30, 9, 8, 8, 9, 8, 10, 9, 9])[0]
+    fresh = None
+    if k > 0 and k % 40 == 0 and len(LISTED) - 3 < len(NEW_COMPANIES):
+        fresh = list_company(rng)
+        situation = "new company"
+    bal = balances()
+    markets = [f"{x}/vUSD" for x in LISTED]
+    rng.shuffle(markets)
+    if fresh:
+        markets = [f"{fresh}/vUSD"]
+    for market in markets:
+        base = market.split("/")[0]
+        holders = [w for w in INVESTORS if bal[w].get(base, 0) >= 1]
+        if holders:
+            break
+    else:
+        raise SystemExit("nobody holds any shares to sell")
+    if fresh:
+        sellers = ["issuer"]
+    else:
+        sellers = rng.sample(holders, k=min(len(holders), rng.choice([1, 1, 2])))
+    others = [w for w in INVESTORS if w not in sellers and bal[w].get("vUSD", 0) >= 20]
+    buyers = rng.sample(others, k=min(len(others), rng.choice([1, 2, 2, 3])))
+    one_limit = rng.randint(3, 7)
+    orders = []
+    for w in sellers:
+        held = bal[w][base]
+        size = held if situation == "sell everything" else rng.randint(1, min(30 if fresh else 8, held))
+        limit = (one_limit if situation == "all at one limit" else
+                 rng.randint(6, 9) if situation == "nothing crosses" else rng.randint(2, 7))
+        orders.append((w, "sell", size, limit, True))
+    for w in buyers:
+        limit = (one_limit if situation == "all at one limit" else
+                 rng.randint(1, 3) if situation == "nothing crosses" else rng.randint(3, 8))
+        size = rng.randint(1, max(1, min(12 if fresh else 8, bal[w]["vUSD"] // limit)))
+        orders.append((w, "buy", size, limit, True))
+    rng.shuffle(orders)
+    kw = {}
+    if situation == "voided":
+        orders = orders[:1]
+    if situation == "refused":
+        w = sellers[0]
+        orders.insert(0, (w, "sell", bal[w][base] + 100, 3, False))   # more than the wallet holds
+    leader = [1, 2, 3][rid % 3]
+    if situation == "leader down":
+        kw = dict(before_open=lambda: stop_node(leader), mid_settle=lambda: start_node(leader),
+                  after=lambda: start_node(leader))
+    if situation == "node down":
+        n = rng.choice([x for x in (1, 2, 3) if x != leader])
+        kw = dict(before_open=lambda: stop_node(n), after=lambda: start_node(n))
+    if situation == "node restarted":
+        n = rng.choice([1, 2, 3])
+        kw = dict(before_close=lambda: (stop_node(n), start_node(n)))
+    placed = [(side, size, limit) for _, side, size, limit, ok in orders if ok]
+    if situation == "voided":
+        expect = "voided"
+    else:
+        expect = "settled" if reference(placed)[1] > 0 else "no trade"
+    label = {"leader down": f"leader down (node {leader})", "new company": f"new company {fresh}, first trade"}.get(situation, situation)
+    if situation == "node down":
+        label = f"node {n} down (not the leader)"
+    run(rid, market, label, orders, min_orders=2, expect=expect, **kw)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repeat", type=int, default=4, help="extra plain rounds at the end")
     ap.add_argument("--evidence", help="a directory to keep checkable proof of every round in")
+    ap.add_argument("--random", type=int, default=0, help="then this many rounds in random situations")
+    ap.add_argument("--seed", type=int, default=20261022)
     a = ap.parse_args()
     A, B, C = "ACME/vUSD", "BOLT/vUSD", "CRUX/vUSD"
     global EVIDENCE
@@ -335,12 +452,15 @@ def main():
             run(8 + k, m, "plain round, repeated", [
                 (s, "sell", 3 + k, 4, True), ("carol", "buy", 2 + k, 5, True),
                 ("dave", "buy", 2, 4, True)])
+        rng = random.Random(a.seed)
+        for k in range(a.random):
+            random_round(8 + a.repeat + k, rng, k)
     finally:
         for p in STARTED:
             p.send_signal(signal.SIGTERM)
         print("\n| Round | Situation | Market | Orders counted | Refused | Price / volume "
-              "| Public check | Settlement | Balances reconciled | Result |")
-        print("|---|---|---|---|---|---|---|---|---|---|")
+              "| Matches reference | Public check | Settlement | Balances reconciled | Result | Seconds |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|---|")
         for row in ROWS:
             print("| " + " | ".join(str(x) for x in row) + " |")
         for n in NOTES:

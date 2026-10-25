@@ -3,20 +3,31 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { USE_MOCK, api, usePoll } from "../lib/api";
 import { clearActor, getActor, setActor } from "../lib/real";
 import { TourNudge } from "./TourNudge";
-import { Chip, cx, short } from "./ui";
+import { Chip, cx } from "./ui";
 
 /// Sealed, then opened: three blocks, two still sealed and one opened to show the price. It is
 /// the same picture as the sealed-glyph animation on the landing page.
-export function LogoMark({ light, className }: { light?: boolean; className?: string }) {
-  const bg = light ? "#faf9f6" : "#111";
-  const fg = light ? "#111" : "#faf9f6";
+/// The square mark (favicon, avatars, small spaces): a dark tile, two sealed blocks, and one
+/// opened block in gold. Gold means "opened" everywhere in the page.
+export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill={bg} />
-      <rect x="5" y="9.5" width="6" height="13" rx="1.6" fill={fg} opacity="0.5" />
-      <rect x="13" y="9.5" width="6" height="13" rx="1.6" fill={fg} opacity="0.5" />
-      <rect x="21.9" y="10.4" width="4.2" height="11.2" rx="1.2" fill="none" stroke={fg} strokeWidth="1.8" />
-      <circle cx="24" cy="16" r="1.4" fill={fg} />
+      <rect width="32" height="32" rx="8" fill="#111" />
+      <rect x="4" y="10" width="7" height="12" rx="2" fill="#5b5d66" />
+      <rect x="12.5" y="10" width="7" height="12" rx="2" fill="#5b5d66" />
+      <rect x="21" y="10" width="7" height="12" rx="2" fill="#f4b728" />
+    </svg>
+  );
+}
+
+/// The wide mark: two sealed blocks and one opened to show the price.
+export function LogoWide({ light, className }: { light?: boolean; className?: string }) {
+  const sealed = light ? "#faf9f6" : "#111";
+  return (
+    <svg viewBox="0 0 108 32" className={className} aria-hidden="true">
+      <rect x="0" y="0" width="32" height="32" rx="7" fill={sealed} />
+      <rect x="38" y="0" width="32" height="32" rx="7" fill={sealed} />
+      <rect x="77" y="1.5" width="29" height="29" rx="6" fill="#f4b728" stroke={sealed} strokeWidth="3" />
     </svg>
   );
 }
@@ -24,9 +35,9 @@ export function LogoMark({ light, className }: { light?: boolean; className?: st
 export function Logo({ light }: { light?: boolean }) {
   return (
     <Link to="/" className="flex shrink-0 items-center gap-2 no-underline sm:gap-2.5" aria-label="Kalyptra home">
-      <LogoMark light={light} className="h-7 w-7" />
+      <LogoMark className="h-7 w-7 shrink-0 sm:hidden" />
+      <LogoWide light={light} className="hidden h-6 w-auto shrink-0 sm:block" />
       <span className="text-[18px] font-medium sm:text-[20px] tracking-tight text-ink">Kalyptra</span>
-      <span className="eyebrow hidden sm:inline">SEALED</span>
     </Link>
   );
 }
@@ -58,12 +69,6 @@ function Health() {
           {data.nodes.length}
         </Chip>
       </span>
-      {/* the group key is long: only on wide screens (it is also in the chip's tooltip) */}
-      {data.group_key && (
-        <span className="hidden 2xl:inline-flex">
-          <Chip>Group key {short(data.group_key, 5)}</Chip>
-        </span>
-      )}
     </div>
   );
 }

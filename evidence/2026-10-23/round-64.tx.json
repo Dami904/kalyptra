@@ -1,0 +1,10 @@
+{
+  "round": 64,
+  "txid": "bea591fd08931b375c4181eebe9f64d5f4d87b4eecbbba3b0bb12db8c8759db8",
+  "height": 64,
+  "block_hash": "861117682c5f0f20bba4c5bb62793ed3d0ff056dfb39ddd89315200e59b17995",
+  "in_block": true,
+  "confirmations": 1,
+  "raw_bytes": 18641,
+  "raw": "round-64.tx.hex"
+}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { LogoMark } from "../components/Shell";
+import { LogoMark, LogoWide } from "../components/Shell";
 import { Button, cx } from "../components/ui";
 import { DOC_PAGES, docGroups, docHref, findDocPage, type DocPage } from "../docs/content";
 import { REPO } from "../docs/blocks";
@@ -133,7 +133,8 @@ export default function Docs() {
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1280px] items-center gap-3 px-5 py-3">
           <Link to="/" className="mr-auto flex min-w-0 items-center gap-2.5 no-underline">
-            <LogoMark className="h-7 w-7 shrink-0" />
+            <LogoMark className="h-7 w-7 shrink-0 sm:hidden" />
+            <LogoWide className="hidden h-6 w-auto shrink-0 sm:block" />
             <span className="leading-none">
               <span className="block text-[17px] font-medium tracking-tight text-ink">Kalyptra</span>
               <span className="mono block text-[11px] text-muted">docs</span>

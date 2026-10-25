@@ -260,6 +260,7 @@ function Detail({ id }: { id: number }) {
           <div data-tour="round-result" className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Metric
               label="Clearing price"
+              opened={record.price !== null}
               value={record.price === null ? "none" : <CountUp to={record.price} />}
               hint={record.price === null ? "Nothing crossed" : "One price for everyone"}
             />

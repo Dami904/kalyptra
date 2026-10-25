@@ -42,14 +42,59 @@ What each situation showed:
 ## 2. Rounds on the real chain, each in a different situation
 
 `scripts/soak_chain.py` drives the gateway exactly as the page does, against the full stack from
-`scripts/run.sh` (QEDIT's ZSA regtest node in Docker, four investor wallets, three nodes). After
-each settled round it reconciles every investor's ACME, BOLT, CRUX and vUSD against what the
-round's signed record says should have moved.
+`scripts/run.sh` (QEDIT's ZSA regtest node in Docker, four investor wallets and the issuer, three
+nodes). After every round it checks the nodes' price and volume against its own computation from
+the orders it placed, and reconciles every trader's balances against what the round's signed
+record says should have moved.
 
 ```bash
 bash scripts/run.sh                      # terminal 1: wait for "Kalyptra is running"
-python3 scripts/soak_chain.py --evidence evidence/<date>   # terminal 2
+python3 scripts/soak_chain.py --random 98 --evidence evidence/<date>   # terminal 2
 ```
+
+### 109 rounds in a row (2026-10-23)
+
+The 11 scenarios below, then 98 rounds each in a randomly chosen situation, built from what the
+wallets held at that moment, on one fresh chain. Two new companies were listed during the run
+(issued on chain, signed by all three nodes) and then traded. Full table, one line per round:
+[`evidence/2026-10-23/rounds.md`](../evidence/2026-10-23/rounds.md); every round's bundle and
+every settlement as the chain reported it: [`evidence/2026-10-23/`](../evidence/2026-10-23/).
+
+| Check | Result |
+|---|---|
+| Rounds as expected | **109 of 109** |
+| Price and volume equal to the independent computation | **109 of 109** |
+| Public check clean | **109 of 109** |
+| Every trader's balances reconciled after the round | **109 of 109** |
+| Settled on chain, one transaction each | **83** (blocks 14 to 100); 10 voided and 16 with nothing crossing, as built |
+| Settlement transactions found in their block by the chain's own node | **83 of 83** |
+| Round bundles verified offline (`kalyptra verify`, no node, no chain) | **109 of 109** |
+| Orders | 323 counted; 16 that the wallet could not cover refused, as built |
+| Companies listed mid-run, then traded | NOVA (17 rounds), ORBT (2 rounds) |
+
+| Situation | Rounds |
+|---|---|
+| Plain (2 to 4 orders, random sizes and limits) | 31 |
+| An order the wallet cannot cover, refused | 15 |
+| The settlement leader down, back after the parts are in | 13 |
+| All orders at one limit (ties) | 9 |
+| Too few orders (voided) | 10 |
+| A node restarted between the orders and the close | 9 |
+| A seller selling everything it holds | 7 |
+| A node other than the leader down for the whole round | 7 |
+| Nothing crosses | 5 |
+| A partial fill of the marginal order | 1 (and many more inside the random rounds) |
+| A new company's first trade | 2 |
+
+The median round took 67 s; the whole run 3.3 hours. One round (48) took 56 minutes: the
+regtest node stopped answering for 54 minutes (its own log: "chain updates have stalled, state
+height has not increased for 54 minutes") and then carried on; the round then cleared and settled
+as expected. Getting to a clean run took four fixes, findings 7 to 10 below: two in QEDIT's
+wallet tool and regtest node (wrong balances on a missed request; a crash on a resubmitted
+transaction) and two in Kalyptra's own code (a takeover that resubmitted a settled round; funds
+reserved forever once nodes forgot a round).
+
+### The first 11 rounds, walked through (2026-10-21)
 
 **11 rounds on the fixed build, every one as expected: 9 settled in one transaction each
 (blocks 14 to 22), all four investors' balances reconciled exactly after every round, and the
@@ -116,7 +161,35 @@ The same round on the build before the fix (finding 2 below): it cleared on node
 parts were handed in, and settlement never started; node 3 came back without the round, and
 the round stayed unsettled until the run was stopped.
 
-## 3. What the runs found, and what was done
+## 3. The real page, clicked through in a real browser
+
+Sections 1 and 2 drive the gateway's API with scripts. On 2026-10-22 the same round was also done
+**by clicking the real page** (the one served by `scripts/run.sh`, not the sample-data demo) in
+Chrome, against a fresh chain, as the four investors in turn ("Acting as" switch).
+
+| Step on the page | What it showed |
+|---|---|
+| Trade, as alice: Sell 10 at 4 | "Sealed. Receipted by 3 of 3 nodes." |
+| The same as bob (Sell 4 at 5), carol (Buy 8 at 6), dave (Buy 6 at 5) | Each: "Sealed. Receipted by 3 of 3 nodes." |
+| Rounds, before closing | "4 sealed"; every node "4 of 4" receipted; nothing opened |
+| Close round | Cleared: **price 5, volume 14, 4 orders, public check Passed**. Node 3's "Voted" dot was hollow (it committed without voting itself; documented, and fine) |
+| Trade, as each investor: Settle | alice "Filled 10 at 5", bob "Filled 4 at 5", carol "Filled 8 at 5", dave "Filled 6 at 5"; each: "Your part is built and handed to 3 nodes" |
+| Rounds, settlement | "Settled in one transaction", `35b6c4b0c940cbc6ddb29fac6917396581b5d4b08dddd35418b16f71e7461403`, block 14: "Either every order moved, or none did" |
+| Portfolio | alice ACME 90 / vUSD 50; carol ACME 8 / vUSD 1960 on the page; the gateway's balances for all four: alice 90/50, bob 96/20, carol 8/1960, dave 6/1970 (the same as every earlier run) |
+
+This also checked that the gateway's origin check (finding 7 below) lets the page's own requests
+through: every call above was made by the page from `http://127.0.0.1:8787`.
+
+**What was not shown in a browser.** A page from another site (`https://example.com`) tried to read
+alice's orders from the gateway. The gateway logged no refusal because **the request never reached
+it: Chrome held it back** (recent Chrome versions stop a public website from reaching a local
+address without asking). So in this browser Chrome's own protection came first; the gateway's
+check is proven by `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` (raw requests
+with a foreign `Origin` and `Host`, including preflight) and by two mutation checks. It is the
+defence for browsers without that protection, and for DNS rebinding, where the browser believes
+the request is same-origin.
+
+## 4. What was found, and what was done
 
 | # | Found by | What happened | Cause | Done |
 |---|---|---|---|---|
@@ -126,6 +199,11 @@ the round stayed unsettled until the run was stopped.
 | 4 | The full test run | One older test (`nodes_running_in_separate_threads…`, key generation over channels) hung for 11 minutes at 0 % CPU. | **A race in the test:** a fast node's round-2 message could reach a slow node still collecting round 1, which treated it as an error; the other threads then waited forever. | The test now keeps an early round-2 message for later, as a real node does, and gives up after 30 s instead of hanging. Passed 300 runs in a row. |
 | 5 | The full test run, after finding 1's fix | The new test for finding 1 failed once: its round never finished. | **A timing gap in the test.** It closed the round straight after sending two orders, with a node down; the two live nodes could close on different receipts, and with the third node away neither can prove the other vote dead, so the round waits for it. That wait is a documented limit (LIMITATIONS: "A round can stay closed"); a real round closes after its trading period, when every order has long reached every node. | The test now waits until both orders are on both live nodes before closing, as the 1,000-round soak does. Passed 5 runs in a row. |
 | 6 | The reliability review of fix 2 | If the leader and its backup both assembled (a slow leader), the chain landed one transaction and the other node reported `failed`; the page could show that `failed` for a round that had settled, and send a retry to the wrong node. | The page took the first status that was not `collecting`, leader first. | **Fixed.** The most advanced status wins across nodes (settled, then unknown, failed, assembling, collecting); a retry is refused once anything settled; every takeover is logged with its reason. Unit test `a_settled_view_wins_over_a_losing_nodes_failed_one`; the settlement test now also checks a live leader is never taken over; both have mutation checks. |
+| 7 | Reading a similar project's code (Umbra, a Canton dark pool), which had closed the same hole | The local gateway answered every request with `Access-Control-Allow-Origin: *` and picked the investor from `?as=`. A web page from any site, open in the investor's own browser, could read their open orders (side, size, limit) before the close, or place, close and settle orders. | Loopback-only binding keeps other machines out, not another site's page in the same browser. | **Fixed.** No CORS header at all; a request whose `Origin` is another site, or whose `Host` is not this machine (DNS rebinding), is refused with 403, preflight included. Test `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` (raw requests with a foreign `Origin` and `Host`); two mutation checks; the real page still works (section 3). |
+| 8 | The first 360-round chain run, round 5 (it stopped there) | alice's order was refused: "alice holds 0 ACME", although the round-4 reconciliation had read her 90. | **In QEDIT's wallet tool, which Kalyptra patches:** every command rescans the chain, and the scan stops at the first error from the node as if it had reached the end. One missed request, and the wallet answers from part of the chain, as a success. Shown on the chain: with the node stopped, `/api/balances` answered alice as all zero with HTTP 200, and an order got the same "holds 0" refusal. | **Fixed in the patch** (`settlement/zcash_tx_tool-kalyptra.patch`): every scan must reach the node's best block; a short one is wiped and redone up to 5 times, then the command fails. On the chain afterwards, the node stopped gives HTTP 502 "the chain node does not answer, so this wallet's balances cannot be known", not zeros. Five unit tests on the decision; the first chain test of the fix also caught a byte-order quirk in the tool's client (fixed). The patch still applies to a clean QEDIT checkout. |
+| 9 | The 360-round runs again: three attempts each died at round 5, with the regtest node's own log kept | The chain node crashed (exit 139): "transactions must be unique within a single chain". Block 16 held round 2's settlement a second time. | **Fix 2's takeover, together with the regtest node.** Node 3 settled round 2, then the run stopped node 3 for round 5; node 1, round 2's backup, checked at that moment, saw no answer, took over and submitted the same transaction again. This node does not reject a block holding a transaction it already has: it crashes. ("The chain refuses a second spend" is true for a different transaction over the same notes, not for the same one.) Not the device: 7.3 GB of memory free, no out-of-memory, the same round and block every time. | **Fixed in the patch:** before submitting a settlement, the wallet tool asks the node whether it already has that transaction; if so it reports the block and submits nothing. Proven on the chain by replaying a settled round twice: both times "already on chain, block 14", the same transaction id, the chain node still up, balances unchanged. The first version of the check sent the transaction id in the wrong byte order and missed; a deliberate replay caught that before any long run counted it. Unit test `a_settlement_already_in_a_block_is_found_not_resubmitted`. |
+| 10 | The 109-round run, round 24 (it stopped there; rounds 1 to 23 were all as expected) | bob tried to sell all 83 CRUX he held and was refused: "bob holds 83 and has 5 already committed to open orders". His only other CRUX order was in round 3, voided long before. | Nodes keep rounds in memory (only their key share and listings are on disk). By round 24 every node had been restarted once, so none could say round 3 had ended, and the gateway's funds check counts an unanswered round as still open (when unsure, reserve). Safe, but money from finished rounds stayed locked after node restarts. | **Fixed in the gateway:** a round's final phase (cleared or voided) never changes, so the gateway saves it the first time it sees it (`finished-rounds.json` in its home) and uses that when no node remembers the round. Test `funds_from_a_finished_round_stay_free_after_every_node_restarts` (reproduces it: 30 in a voided round, all three nodes restarted, then 40 of 42 sold); a mutation check proves the test needs the fix. |
+| 11 | The mutation check after the 109-round run | One mutation survived once: with the 2-of-3 rule for operator commands removed, its test still passed. Run by hand, the same mutation was caught. | **A timing gap in the test:** it stopped a node and opened the round at once, and a node that is still finishing can answer; then every node takes the command and the mutated code is never exercised. | The test now waits until the stopped node refuses requests. Passed 3 of 3 normally; with the mutation it failed 5 of 5. |
 
 Still open, and stated in [`LIMITATIONS.md`](LIMITATIONS.md): if a round's leader **and** its
 backup are both unavailable, its settlement waits until one of them is back with the round. A

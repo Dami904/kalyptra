@@ -633,10 +633,10 @@ bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20
         body: (
           <Ul>
             <li>
-              <B>153 automated tests</B>, run on every push in CI with lint, docs, a Rust 1.85 build and the page build.
+              <B>154 automated tests</B>, run on every push in CI with lint, docs, a Rust 1.85 build and the page build.
             </li>
             <li>
-              <B>50 defences proven needed:</B> each switched off in turn, and a test failed every time.
+              <B>51 defences proven needed:</B> each switched off in turn, and a test failed every time.
             </li>
             <li>
               <B>47 known-answer vectors</B> re-derived by a separate Python and libsodium implementation.

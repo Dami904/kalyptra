@@ -1,0 +1,206 @@
+{
+  "group": {
+    "pk": "985750072683aea0c8e11c633dd964803882bd860e18a553d527d5ada74f511e",
+    "shares": {
+      "1": "a2f68372de2e401c0b79eeaa435c8a2cc739507bff26be59c39fd05a96fa3b7a",
+      "2": "1c2633e51b1271ea209a02402d9d5f00c02f4ddc12bf32978e8522e9be7c9d4d",
+      "3": "089e079cfaa729a9ef755631d8bd490e73ad18f28819626b3052404572dfe573"
+    },
+    "threshold": 2
+  },
+  "round": {
+    "commit_votes": [
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 2,
+        "round_id": 46,
+        "set": [
+          "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+          "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+          "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6"
+        ],
+        "sig": "18e5cd4dac3b5d5791f76b35f0273e2c2138eb5695c0976c5ad92e22e011d4c8c146fe373f9a0af6c39a583686bcb8aa15d09213696fc6cfdb6e8951a1500d0d",
+        "voided": false
+      },
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 3,
+        "round_id": 46,
+        "set": [
+          "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+          "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+          "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6"
+        ],
+        "sig": "2ecf56ba2ba31dda8045d4f2ee63aefa6ca76129da54b5327c6114b5c6c49eb84eeadbcc6055898957de358fc856671bdcc8235396589c7d58c6ac3c673c2c08",
+        "voided": false
+      }
+    ],
+    "config": {
+      "market": "CRUX/vUSD",
+      "min_orders": 2,
+      "round_id": 46
+    },
+    "envelopes": [
+      "027715b96c120ac39a482a2f5517f5e2834ea9354cb4e22c760cabbd9882a54d49808884ca43af733f661ed7f9671ccc7d57a71deddf9fd0f504a9a537cd5709483e02e7d8d91b6928ed7426095d3d4f7146ca733eda51a0e09ff0c548b3bf0bde3b2b0b10250e499fe82179ab393d561507261defeb7eabfc1605ee880b1e035be791dc48771b73865284c553963ff3f5e9965b38aec43cc5d14d1efa81d54d408121991caffac3d393943209a9dcf037b2364acde9fc08dc5304770365665dac87150957f631aa0e1837e5a4b4d18f15cabac26c6e2f1941e5623f6280a3c902e2f705f07d304a27637f32c52723bf7d12cca85d206ac563d58ff18e5613b298530642",
+      "46b8120435634a201eeebbd3def36a5aa99a4d6139814b5d11de9ac1b9865e3be773ac8b133c75899260e6076e29344dd9597e5eac7f4668eec5870d83ca8205ecbb17ed4d2c285f93d50595bbfb71b99c35f1174e75b99acf15ce17cbe41e00ac3c76d2bd6411e27c84a4be39d5e11244451a3d2917a3eac1e645b1e31039e15826a3834e7c980c63d60c7e03ad22e1133d945070755e4a0f92da8ce88b9ead41a113b490ac9c69ef3239a3d2479052c4293aa2971859117a4018f8c146063bb6e582978861b994b620d964a808658d367ec0d57f899f62a648386db516032c7955c4ed70bf72f2bf23631e12fa276d9c3b4c6a07b8063ee3914e348509854cd65c3c60",
+      "dabf07ba480410b4f5bd18b17450fd783f324ce7238391071a5121621784463dbdb9bb265c3f26c98907c74dfab37b97e9efc829aff5f5c5e1d64bf7807d5502d3e64daca8128c14cc100a097d0030459c3c1bd55b9b28c4bd02b2b54d1ea80b3251d27f8d52a87c2caac16ba03cbc4d944af6621e138978dc949996429fbb87c4ab68dc2563644670c82c6af5ebed742a83ddcc77f54c7e73e82ef650092bbd3acd9f6e2095d7e66ff6e61dab54bc10b0fdc9b5879ad78c34b8c182870b4b698f8678fbaf06c4e024596688b6f3d4b9320b893fd8e5d4c31fddf5860b19ed6ce62085c3b3f8a25234685a5e073ae0b734105b661b23fd713787c5d176041a649c18ca90"
+    ],
+    "partials": [
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "partial": "02008830c5440343a14f81c86c14bf8ae3733acefa9d796ab56012accb49f9e6a32883ac6a3bb3a883b1daa3828a100edf98f25bdf0b1ae14ba1d649e3596f469b0bcb1bb25766c128d707d9fd3584399457779fcc3bdb1bf6e7aff97d358c80a602"
+      },
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "partial": "0300d2cb5722c053179d45fe05ef56e1c64f0b6d3b5d0f18552136cc30ed3b2bb008511e4ec11911968273936ff54a288165df44d548d28b0098894feed32030ad05b112e8b75ec482b84a713ef410db4e086c50f7bc9a4ea3c08edef1eb0f773008"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "partial": "0200860c76a65de734441ddf72215e6bcb727716c93d02a8bca5dfe9d0af00255d3c4b6e23f7d3982ec2e88760726e72deb1fef558d65784d606e60e97276bd1640112052fa38995e784702696949e6ec29a88bfe2ac731479f4029c54b53be95e04"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "partial": "03004a6f9237fcc920803810b45ccffdfd8869b9ebc1057aa7e3296cdf10d0f29720fd990294d509499e9b96cf91b64106ec9647b3541befa3d5cda5791fb630aa0add5fdbe5aeb5ba59854642a8a78bc0bab489bb0eb556c3fa1d06125a3f7a550d"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "partial": "02003e10e4427bee10f3810773edacbc2103176e2242917b0420307e23a6b787d06dfc0fe056ac94dedb9a1051ce29ab76806108dbf9ebe24f636b89028a0e4d44079e5ad1a28b331d40e1dcb3b0f2bb88fc5865dac0c9564e2b5b55d8ae10125706"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "partial": "030050bea5be78ccf87579201386e059d02d947db68b13c4ff215b055f69aa35f4385ef75eb8a2414ed6ad5df5295ff4cb93d0f2eca96723d754a3fb793c1b4a9a09645a83571a7da7039f06c17c17bb224fb9969bb53d2cadbb9427504a3a39f007"
+      },
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "partial": "02008830c5440343a14f81c86c14bf8ae3733acefa9d796ab56012accb49f9e6a32883ac6a3bb3a883b1daa3828a100edf98f25bdf0b1ae14ba1d649e3596f469b0bcb1bb25766c128d707d9fd3584399457779fcc3bdb1bf6e7aff97d358c80a602"
+      },
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "partial": "0300d2cb5722c053179d45fe05ef56e1c64f0b6d3b5d0f18552136cc30ed3b2bb008511e4ec11911968273936ff54a288165df44d548d28b0098894feed32030ad05b112e8b75ec482b84a713ef410db4e086c50f7bc9a4ea3c08edef1eb0f773008"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "partial": "0200860c76a65de734441ddf72215e6bcb727716c93d02a8bca5dfe9d0af00255d3c4b6e23f7d3982ec2e88760726e72deb1fef558d65784d606e60e97276bd1640112052fa38995e784702696949e6ec29a88bfe2ac731479f4029c54b53be95e04"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "partial": "03004a6f9237fcc920803810b45ccffdfd8869b9ebc1057aa7e3296cdf10d0f29720fd990294d509499e9b96cf91b64106ec9647b3541befa3d5cda5791fb630aa0add5fdbe5aeb5ba59854642a8a78bc0bab489bb0eb556c3fa1d06125a3f7a550d"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "partial": "02003e10e4427bee10f3810773edacbc2103176e2242917b0420307e23a6b787d06dfc0fe056ac94dedb9a1051ce29ab76806108dbf9ebe24f636b89028a0e4d44079e5ad1a28b331d40e1dcb3b0f2bb88fc5865dac0c9564e2b5b55d8ae10125706"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "partial": "030050bea5be78ccf87579201386e059d02d947db68b13c4ff215b055f69aa35f4385ef75eb8a2414ed6ad5df5295ff4cb93d0f2eca96723d754a3fb793c1b4a9a09645a83571a7da7039f06c17c17bb224fb9969bb53d2cadbb9427504a3a39f007"
+      }
+    ],
+    "receipts": [
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "node": 2,
+        "round_id": 46,
+        "sig": "846104ae72bd8ab225c25ae43ae46e530d2186c1fff024ac372e83d628b365393ba264c1eb4c713ed9a5298c011087f46a09baf556d75db201a99ea7f6b45101"
+      },
+      {
+        "envelope": "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "node": 3,
+        "round_id": 46,
+        "sig": "72ab632d53b437236895c42fc28760a16536fe7dac3ae9d0fc996227f064b7a75c92c420ca3a358e9a4a4bb78a0f3ba013d39acfd9694dc04c6b769d9f1c4d0d"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "node": 2,
+        "round_id": 46,
+        "sig": "991bd0384c1abc42c7bce7b15ccb210d5466722703c7492bdae7dc4abd60a66f4cde82c430f995b0f2756b82adc8d3ee88e879e11a249bd39e632183c6c48f08"
+      },
+      {
+        "envelope": "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "node": 3,
+        "round_id": 46,
+        "sig": "21a27ebc97c72474dc55fe483d22f19551dbfaf7e38afcbb7f9d47531fb03bb01ac4891063deaee93e4524865c16c26db41d32d9e8199d311741cdc6c8c89507"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "node": 2,
+        "round_id": 46,
+        "sig": "7ad90000d0853758a11f12da6c9a27c833087285b58948316786a38ffc979f791cef88ef0a4d62f273a7e08f3307840cdc5c69a9a87151cdf7b36fd8d9fc6201"
+      },
+      {
+        "envelope": "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6",
+        "node": 3,
+        "round_id": 46,
+        "sig": "c64bbca0e7c94ac726cbc1b29d8ec1ee038cd2bf6dbac58096c5bb77d86b480b22b4e09e94bb5c6765531776e19d464ec0ad7c3fd3864cf6760da7fb5fc7460a"
+      }
+    ],
+    "record": {
+      "fills": [
+        {
+          "id": 0,
+          "quantity": 2,
+          "side": "sell"
+        },
+        {
+          "id": 1,
+          "quantity": 2,
+          "side": "buy"
+        }
+      ],
+      "invalid": [],
+      "market": "CRUX/vUSD",
+      "orders": [
+        [
+          0,
+          {
+            "limit": 5,
+            "owner": "8f364133825ad1f6d1e91d6307a99642ade9c1c0993aaee7e40001add30ce682",
+            "side": "sell",
+            "size": 2
+          }
+        ],
+        [
+          1,
+          {
+            "limit": 8,
+            "owner": "199e6a2aaf6bd27256c8da9b5bcded2acef8bfc986d8db881747ed029983b573",
+            "side": "buy",
+            "size": 5
+          }
+        ],
+        [
+          2,
+          {
+            "limit": 7,
+            "owner": "825edf0fdf106d01ad0558857693b412320a4c138dba6c96cf721ab2f44b479b",
+            "side": "buy",
+            "size": 3
+          }
+        ]
+      ],
+      "price": 8,
+      "round_id": 46,
+      "set": [
+        "1673b8c06b5a423d9e08ff6f2dfd076dbe6c48feeecd9348ab988219d84f860d",
+        "1a8d4811f5009231337fe278d830620e186e83637821d1e90751725308cff7a9",
+        "ab1f70d86318b2ac01a2ae30b295d6bbf4f068b220a2cc9c5a1cbf483f67f5f6"
+      ],
+      "volume": 2
+    },
+    "record_votes": [
+      {
+        "node": 2,
+        "record": "62dcada753de0582be8a21e7bf4573a6de4b10c3222333ac2d251e363d12b1a9",
+        "round_id": 46,
+        "sig": "3cca8f995276dc46349b857da065af41e27ff1916cece394d47aaadaa632958ad977d90c1dcfa4c6b424d54c30d80bfbb6045627969f5deeebca2e895fbb5e0f"
+      },
+      {
+        "node": 3,
+        "record": "62dcada753de0582be8a21e7bf4573a6de4b10c3222333ac2d251e363d12b1a9",
+        "round_id": 46,
+        "sig": "c5740e3528c99abb4a3cd9d56a9932219f80e32d1334c563271f08939be0e5ed2c3e14225ad7c641fe5baf1640a432415dc46b6e328fe0023ce97ae5501ff30c"
+      }
+    ]
+  }
+}

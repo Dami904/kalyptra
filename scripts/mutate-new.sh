@@ -22,7 +22,24 @@ mutate() {
     fail=1
     return
   fi
-  if cargo test "$@" >/tmp/mutate.out 2>&1; then
+  # On a Windows drive under WSL cargo can miss the edit (file times) and test the old build,
+  # which reads as SURVIVED. Build first and insist the mutated crate was recompiled.
+  local crate
+  crate=$(echo "$file" | sed -E 's|^crates/([^/]+)/.*|\1|')
+  local tries
+  for tries in 1 2 3; do
+    cargo test --no-run "$@" >/tmp/mutate.out 2>&1
+    grep -q "Compiling $crate " /tmp/mutate.out && break
+    # touching is not always seen there either: drop the crate's fingerprint so cargo must rebuild
+    rm -rf "$CARGO_TARGET_DIR"/debug/.fingerprint/"$crate"-*
+  done
+  if grep -q "error\[" /tmp/mutate.out; then
+    echo "DID NOT COMPILE $name"
+    fail=1
+  elif ! grep -q "Compiling $crate " /tmp/mutate.out; then
+    echo "NOT REBUILT  $name (cargo did not recompile $crate; result would be meaningless)"
+    fail=1
+  elif cargo test "$@" >/tmp/mutate.out 2>&1; then
     echo "SURVIVED     $name  <-- no test noticed"
     fail=1
   elif grep -q "error\[" /tmp/mutate.out; then
@@ -32,6 +49,7 @@ mutate() {
     echo "caught       $name"
   fi
   mv "$file.orig" "$file"
+  touch "$file"   # a restored file keeps its old time; make cargo rebuild from it
 }
 
 M=crates/kalyptra-matcher
@@ -125,5 +143,8 @@ mutate "the backup takes over a leader that is alive and done" $N/src/server.rs 
 mutate "the first view that is not collecting wins" $N/src/client.rs \
   's/if best\n            \.as_ref\(\)\n            \.is_none_or\(\|b\| rank\(&v\.status\) > rank\(&b\.status\)\)/if best.is_none()/' \
   -p kalyptra-node --lib
+mutate "funds in a round the gateway saw end are reserved again once the nodes forget it" $N/src/gateway.rs \
+  's/known\.or_else\(\|\| self\.status\(round\)\.map\(\|s\| s\.phase\)\)/self.status(round).map(|s| s.phase)/' \
+  -p kalyptra-node --test http stay_free
 [ "$fail" = 0 ] && echo "every new defence is load-bearing" || echo "SOME DEFENCES ARE NOT TESTED"
 exit $fail

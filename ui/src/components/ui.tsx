@@ -51,9 +51,9 @@ export function Card({ children, className, tour }: { children: ReactNode; class
   );
 }
 
-export function Metric({ label, value, tone, hint }: { label: string; value: ReactNode; tone?: "up" | "down"; hint?: string }) {
+export function Metric({ label, value, tone, hint, opened }: { label: string; value: ReactNode; tone?: "up" | "down"; hint?: string; opened?: boolean }) {
   return (
-    <div className="rounded-xl bg-wash px-4 py-3">
+    <div className={cx("rounded-xl bg-wash px-4 py-3", opened && "border-l-4 border-gold")}>
       <p className="eyebrow m-0">{label}</p>
       <p className={cx("num m-0 mt-1 text-2xl", tone === "up" && "text-up", tone === "down" && "text-down")}>{value}</p>
       {hint && <p className="m-0 mt-0.5 text-xs text-muted">{hint}</p>}

@@ -41,6 +41,15 @@ What is explicitly NOT handled. Dates are when each was last checked against the
   assemble: the chain lands one transaction, the other node reports `failed`, and the page
   shows the settled one (the most advanced status wins). If the backup restarts inside those
   20 s, nobody takes over until the parts are handed in again.
+- **Two nodes submitting the same settlement within the same moment.** A node checks the chain
+  before submitting and never resubmits a settlement already in a block (the regtest node
+  crashes on a duplicate transaction rather than rejecting it). If the leader and its backup
+  both submit before either is mined, both checks pass; the backup only acts 20 s after it
+  holds every part, so this needs a leader slower than that.
+- **Nodes keep rounds in memory.** A node that restarts forgets earlier rounds (it keeps only
+  its key share and listings). Their published data is no longer served by it, so save a
+  round's bundle (the page's button, or `kalyptra export`) to verify it later; the gateway
+  remembers which rounds ended, so funds in them are not reserved again.
 - **Settlement status lives in memory.** A node that restarts after settling forgets that it
   did; a later retry on it is refused by the chain (the notes are spent) and shows as
   `failed`, though the round did settle. Persisting the settled transaction id would fix it.

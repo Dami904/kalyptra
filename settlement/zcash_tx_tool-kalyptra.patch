@@ -32,10 +32,10 @@ index 2607361..cf60b0b 100644
  
 diff --git a/src/commands/kalyptra_wallet.rs b/src/commands/kalyptra_wallet.rs
 new file mode 100755
-index 0000000..834403f
+index 0000000..0f24c4b
 --- /dev/null
 +++ b/src/commands/kalyptra_wallet.rs
-@@ -0,0 +1,421 @@
+@@ -0,0 +1,582 @@
 +//! Kalyptra G2: one persistent wallet per process, for settling sealed auction rounds.
 +//!
 +//! Every subcommand opens ONE wallet directory (`seed.txt` + `wallet.sqlite`), rescans the
@@ -48,6 +48,7 @@ index 0000000..834403f
 +use std::path::{Path, PathBuf};
 +
 +use crate::components::rpc_client::reqwest::ReqwestRpcClient;
++use crate::components::rpc_client::RpcClient;
 +use crate::components::transactions::{
 +    create_finalization_transaction, create_issue_transaction, create_transfer_to_address,
 +    matcher_assemble, mine, party_build_leg, sync_from_height, SwapLeg,
@@ -65,6 +66,7 @@ index 0000000..834403f
 +use orchard::note::AssetBase;
 +use orchard::Address;
 +use serde::Deserialize;
++use zcash_primitives::block::BlockHash;
 +
 +/// Kalyptra settlement wallet commands
 +#[derive(clap::Parser, Command, Debug)]
@@ -240,8 +242,137 @@ index 0000000..834403f
 +    // happen before the rescan, or the rescan cannot recognise the wallet's own notes.
 +    my_address(&mut w);
 +    let watched = watch.map(|fvk| w.watch(fvk));
-+    sync_from_height(config.chain.nu7_activation_height, &mut w, rpc);
++    sync_to_tip(config.chain.nu7_activation_height, &mut w, rpc);
 +    (w, watched)
++}
++
++/// Rescan the chain, and make sure the scan reached the node's best block.
++///
++/// The tool's own scan stops at the first error it gets from the node as if it had reached the
++/// end of the chain. A node that misses one request (busy, restarting, briefly unreachable)
++/// would leave the wallet on part of the chain, and every balance would be answered wrongly
++/// (all zero, if the very first request failed) as a success. Here a scan that did not reach
++/// the best block is wiped and redone; if it still does not, the command fails and says why.
++fn sync_to_tip(from: u32, w: &mut User, rpc: &mut ReqwestRpcClient) {
++    const TRIES: u64 = 5;
++    for attempt in 1..=TRIES {
++        sync_from_height(from, w, rpc);
++        // The client returns `getbestblockhash` byte-reversed but `getblock` hashes (what the
++        // scan stores) as sent, so turn the best hash round before comparing them.
++        let best = rpc
++            .get_best_block_hash()
++            .map(|h| {
++                let mut b = h.0;
++                b.reverse();
++                BlockHash(b)
++            })
++            .map_err(|e| e.to_string());
++        // Only needed when nothing was scanned: is there a block to scan at all? A node that
++        // answers "no such block" has a chain that is still shorter than where scans start; a
++        // request that never reached the node says nothing.
++        let first = if w.last_block_hash().is_none() {
++            match rpc.get_block(from) {
++                Ok(_) => Ok(true),
++                Err(e) if e.downcast_ref::<reqwest::Error>().is_some() => Err(e.to_string()),
++                Err(_) => Ok(false),
++            }
++        } else {
++            Ok(true)
++        };
++        match tip_check(w.last_block_hash(), best, first) {
++            Ok(()) => return,
++            Err(why) if attempt == TRIES => fail(why),
++            Err(_) => {
++                // a clean rescan: resuming would scan the last block again and count its notes twice
++                w.reset();
++                std::thread::sleep(std::time::Duration::from_millis(400 * attempt));
++            }
++        }
++    }
++}
++
++/// The height of the block holding `txid`, among `blocks` (height, its transaction ids).
++fn height_of<I: Iterator<Item = (u32, Vec<zcash_primitives::transaction::TxId>)>>(
++    txid: &zcash_primitives::transaction::TxId,
++    blocks: I,
++) -> Option<u32> {
++    blocks
++        .into_iter()
++        .find(|(_, ids)| ids.contains(txid))
++        .map(|(h, _)| h)
++}
++
++/// Did the scan reach the chain's best block? `first_exists` says whether the chain has a block
++/// at the height scans start from (it may not yet, on a new chain).
++fn tip_check(
++    scanned_to: Option<BlockHash>,
++    best: Result<BlockHash, String>,
++    first_exists: Result<bool, String>,
++) -> Result<(), String> {
++    let unknown = |e: String| {
++        format!("the chain node does not answer, so this wallet's balances cannot be known: {e}")
++    };
++    let best = best.map_err(unknown)?;
++    match scanned_to {
++        Some(h) if h == best => Ok(()),
++        Some(h) => Err(format!(
++            "the wallet scanned only up to block {h}; the chain's best block is {best}"
++        )),
++        None => match first_exists.map_err(unknown)? {
++            false => Ok(()), // nothing to scan yet: the chain is shorter than where scans start
++            true => Err(format!(
++                "the wallet could not scan any block; the chain's best block is {best}"
++            )),
++        },
++    }
++}
++
++#[cfg(test)]
++mod tip_tests {
++    use super::*;
++    use zcash_primitives::transaction::TxId;
++
++    #[test]
++    fn a_settlement_already_in_a_block_is_found_not_resubmitted() {
++        let (a, b, c) = (TxId::from_bytes([1; 32]), TxId::from_bytes([2; 32]), TxId::from_bytes([3; 32]));
++        let chain = vec![(16, vec![a]), (15, vec![a, b]), (14, vec![a])];
++        assert_eq!(height_of(&b, chain.clone().into_iter()), Some(15));
++        assert_eq!(height_of(&c, chain.into_iter()), None);
++    }
++
++    fn h(b: u8) -> BlockHash {
++        BlockHash([b; 32])
++    }
++
++    #[test]
++    fn a_scan_that_reached_the_best_block_is_accepted() {
++        assert!(tip_check(Some(h(7)), Ok(h(7)), Ok(true)).is_ok());
++    }
++
++    #[test]
++    fn a_scan_that_stopped_early_is_refused_not_reported() {
++        let e = tip_check(Some(h(5)), Ok(h(7)), Ok(true)).unwrap_err();
++        assert!(e.contains("scanned only up to"), "{e}");
++    }
++
++    #[test]
++    fn a_scan_that_read_nothing_while_blocks_exist_is_refused() {
++        let e = tip_check(None, Ok(h(7)), Ok(true)).unwrap_err();
++        assert!(e.contains("could not scan"), "{e}");
++    }
++
++    #[test]
++    fn a_chain_too_short_to_scan_yet_is_fine() {
++        assert!(tip_check(None, Ok(h(7)), Ok(false)).is_ok());
++    }
++
++    #[test]
++    fn a_node_that_does_not_answer_is_an_error_not_a_zero_balance() {
++        let e = tip_check(Some(h(7)), Err("connection refused".into()), Ok(true)).unwrap_err();
++        assert!(e.contains("does not answer"), "{e}");
++        let e = tip_check(None, Ok(h(7)), Err("connection refused".into())).unwrap_err();
++        assert!(e.contains("does not answer"), "{e}");
++    }
 +}
 +
 +fn my_address(w: &mut User) -> Address {
@@ -439,6 +570,36 @@ index 0000000..834403f
 +                let mut w = open(wallet, &mut rpc);
 +                let tx = matcher_assemble(groups, &w);
 +                let txid = tx.txid();
++                // Never submit a settlement the chain already has. The same parts give the same
++                // transaction, so a second node settling a round (a takeover after the leader went
++                // down, or a retry after an unknown outcome) would submit it again; this regtest
++                // node does not reject a block holding a transaction it already has, it crashes
++                // ("transactions must be unique within a single chain"). Report where it is.
++                // The node and the tool's block reader use the reversed byte order of `txid()`.
++                let on_chain_id = {
++                    let mut b = *txid.as_ref();
++                    b.reverse();
++                    zcash_primitives::transaction::TxId::from_bytes(b)
++                };
++                if rpc.get_transaction(&on_chain_id).is_ok() {
++                    let tip: u32 = w.last_block_height().map(u32::from).unwrap_or(0);
++                    let from = APP.config().chain.nu7_activation_height;
++                    let blocks = (from..=tip).rev().filter_map(|h| {
++                        rpc.get_block(h).ok().map(|b| (h, b.tx_ids))
++                    });
++                    match height_of(&on_chain_id, blocks) {
++                        Some(height) => {
++                            result(serde_json::json!({
++                                "ok": true, "txid": txid.to_string(), "height": height,
++                                "already_on_chain": true,
++                            }));
++                            return;
++                        }
++                        None => fail(format!(
++                            "settlement {txid} is already known to the node but in no block yet; not submitted again"
++                        )),
++                    }
++                }
 +                mine(&mut w, &mut rpc, vec![tx])
 +                    .unwrap_or_else(|e| fail(format!("the node rejected the settlement: {e}")));
 +                let height: u32 = w.last_block_height().map(u32::from).unwrap_or(0);

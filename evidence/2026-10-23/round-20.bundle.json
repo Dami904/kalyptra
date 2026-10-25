@@ -1,0 +1,68 @@
+{
+  "group": {
+    "pk": "985750072683aea0c8e11c633dd964803882bd860e18a553d527d5ada74f511e",
+    "shares": {
+      "1": "a2f68372de2e401c0b79eeaa435c8a2cc739507bff26be59c39fd05a96fa3b7a",
+      "2": "1c2633e51b1271ea209a02402d9d5f00c02f4ddc12bf32978e8522e9be7c9d4d",
+      "3": "089e079cfaa729a9ef755631d8bd490e73ad18f28819626b3052404572dfe573"
+    },
+    "threshold": 2
+  },
+  "round": {
+    "commit_votes": [
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 1,
+        "round_id": 20,
+        "set": [
+          "721b8f44c1128caa6feb1b84bddbee4c7721f072e60cdec614844ccac0ffed9b"
+        ],
+        "sig": "51ee1b5828ead6bfbae671a6353233b05204ee6919f9d0a06d5e05c2cc4bc5dc0fa0c810f759d9579f2a9a9b00e22b3c0e2b75860c4feaa3eb32e7112b49ea01",
+        "voided": true
+      },
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 2,
+        "round_id": 20,
+        "set": [
+          "721b8f44c1128caa6feb1b84bddbee4c7721f072e60cdec614844ccac0ffed9b"
+        ],
+        "sig": "770f825505c1f7a7a32dbe3dc44323d71e5c9f4e539db1555b357faa0f076ae92752b616fdeb9dcc5fb04bf712ad45c83484130bdc6dd732f73023973363d606",
+        "voided": true
+      }
+    ],
+    "config": {
+      "market": "ACME/vUSD",
+      "min_orders": 2,
+      "round_id": 20
+    },
+    "envelopes": [
+      "48fdb453665451a05738d5a075758016ae5b63eb1b3129749dbf21ec2b6b3e630deee8075d2af1a5f7e8cb9e64357c15661d13a07a3c56b9269d001f60ae220b676bb9eb4377431b6c78ae4d65691224bb802a0fe646ea7ea85fd69ffd818d040c251869cc5023a7c432ece49feb0c736a25bb0ec5b932e708128aca757bd36ae5bff7f66af6d403e338b390f8260e372e9aba140b0b14e3dee8cc2b5d6f823f4ee3fcc185f1b6f2ece31f9d111eed5d79b863c777e6d63a3632345a7c7ca2daa694bf99afcbbc1eec7bc37906c01ba3eb73a1f97627638afbfbe87210e00a54d8a2a1df3a39d58841f721b3c7dd697c1438fb0a2d015752cafb2bc600959af61993c211"
+    ],
+    "partials": [],
+    "receipts": [
+      {
+        "envelope": "721b8f44c1128caa6feb1b84bddbee4c7721f072e60cdec614844ccac0ffed9b",
+        "node": 1,
+        "round_id": 20,
+        "sig": "af0c6503f76452ea99eabb13e055833b9084b977ca6356dbf2f9d38af33b8946da0962a007b70ce8280360605414743437a8d875cefdab8397912829852a4606"
+      },
+      {
+        "envelope": "721b8f44c1128caa6feb1b84bddbee4c7721f072e60cdec614844ccac0ffed9b",
+        "node": 2,
+        "round_id": 20,
+        "sig": "d81f511529135b1cf551d96521ed48e8c34d2586d3951d0a9d81653a5dd276e64bed5f8cd13eecdeedd9a61664fa3ada48d3e180578084537e54099101092207"
+      },
+      {
+        "envelope": "721b8f44c1128caa6feb1b84bddbee4c7721f072e60cdec614844ccac0ffed9b",
+        "node": 3,
+        "round_id": 20,
+        "sig": "479b65cf53bd7ec88f8d33895a95e349917a969efa3f88a088308573ca33352c4bedbd05848f24b396ead9228067ef50ff50a158a139a5bfa4fa708041e1fb0b"
+      }
+    ],
+    "record": null,
+    "record_votes": []
+  }
+}

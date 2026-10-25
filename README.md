@@ -3,7 +3,7 @@
 **Sealed-bid auctions for private company shares, on Zcash Shielded Assets.**
 
 [![CI](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml/badge.svg)](https://github.com/Dami904/kalyptra/actions/workflows/ci.yml)
-[![Tests: 153 passing](https://img.shields.io/badge/tests-153%20passing-2ea44f)](#tests-and-evidence)
+[![Tests: 154 passing](https://img.shields.io/badge/tests-154%20passing-2ea44f)](#tests-and-evidence)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-kalyptra.vercel.app-black)](https://kalyptra.vercel.app)
 [![Rust 1.85+](https://img.shields.io/badge/rust-1.85%2B-orange)](Cargo.toml)
@@ -61,15 +61,15 @@ system is not hosted. Everything below runs on one machine.
 
 | | |
 |---|---|
-| Tests | **153 passing** (`cargo test --workspace`), clippy `-D warnings`, rustfmt and rustdoc clean |
-| Attacks | **15 adversarial tests, two of them 600-case randomised "a clean check means an honest result" tests**; every defence was switched off in turn and a test failed each time (23, then 27 more) |
+| Tests | **154 passing** (`cargo test --workspace`), clippy `-D warnings`, rustfmt and rustdoc clean |
+| Attacks | **15 adversarial tests, two of them 600-case randomised "a clean check means an honest result" tests**; every defence was switched off in turn and a test failed each time (23, then 28 more) |
 | Independent check | 47 known-answer vectors re-derived by a separate Python and libsodium script that shares no code |
 | Settlement | A real round on a regtest chain settled in **one transaction**, all balances matched |
 
 The shortest path (no Docker, about a minute, Linux or WSL with Rust 1.85+):
 
 ```bash
-cargo test --workspace      # 153 tests
+cargo test --workspace      # 154 tests
 bash scripts/demo.sh        # three node processes run a whole round, then verify it offline
 ```
 
@@ -147,6 +147,7 @@ Every real-chain run, with what to check it against:
 | 2026-10-15 | The same stack: `NOVA` listed by 3 of 3 nodes, then traded | Settled at block 17 |
 | 2026-10-21 | A fresh run directory: `settlement/setup.sh` re-run (idempotent), then `scripts/run.sh` and round 1 again | Cleared at 5, volume 14, no findings; all four legs in one transaction at block 14 (`a2e32f79d60181d1…3617dba9`); the same four balances |
 | 2026-10-21 | `scripts/soak_chain.py`: 11 rounds in different situations (refused orders, a voided round, no cross, the settlement leader down, a node restarted, a partial fill, repeats) | All 11 as expected; 9 settled in one transaction each (blocks 14 to 22), every balance reconciled after every round. Every round's bundle verifies offline, and each transaction was read back from the chain inside its block: [`evidence/2026-10-21/`](evidence/2026-10-21/), explained in [`docs/EVIDENCE.md`](docs/EVIDENCE.md) |
+| 2026-10-23 | `scripts/soak_chain.py --random 98`: **109 rounds in a row** on one chain, each in a random situation (refused orders, voided rounds, ties, selling everything, the leader or another node down, nodes restarted, two companies listed mid-run and traded) | **109 of 109 as expected**: every price equal to an independent computation, every public check clean, every balance reconciled; 83 settled in one transaction each (blocks 14 to 100), all 83 found in their block by the chain's node, all 109 bundles verified offline ([`evidence/2026-10-23/`](evidence/2026-10-23/), [one line per round](evidence/2026-10-23/rounds.md)) |
 
 ## The problem
 
@@ -227,13 +228,13 @@ flowchart LR
 |---|---|---|
 | `kalyptra-tse` `threshold`, `dkg`, `fuzz_style`, `vectors` | 60 | Sealed envelopes, key generation, malformed input, known answers |
 | `kalyptra-matcher` `rounds`, `adversarial`, `auction`, `settlement`, `order` | 70 | Whole rounds, 15 adversarial tests, the auction rules, settlement terms |
-| `kalyptra-node` `http`, and two unit tests | 23 | Three real processes, the gateway, offline verification, listings, funds check, damaged files, a race, settlement retry, pages from other sites refused, a node down, a leader that never saw its round |
+| `kalyptra-node` `http`, and two unit tests | 24 | Three real processes, the gateway, offline verification, listings, funds check, damaged files, a race, settlement retry, pages from other sites refused, a node down, a leader that never saw its round |
 | `tools/check_vectors.py` | 47 vectors | A separate implementation derives the same bytes |
 | [`ATTACKS.md`](ATTACKS.md) | every attack | Each attack, who stops it, and the test that proves it |
-| [`docs/EVIDENCE.md`](docs/EVIDENCE.md) | 1,000 rounds, plus real-chain rounds | Nine situations (ties, no cross, too few orders, junk, duplicates, a node down or restarted) through three real nodes, then refusals, a voided round, a node down and partial fills on the chain, every balance reconciled; and the two bugs those runs found, now fixed |
+| [`docs/EVIDENCE.md`](docs/EVIDENCE.md) | 1,000 rounds, plus 109 in a row on the real chain | Nine situations (ties, no cross, too few orders, junk, duplicates, a node down or restarted) through three real nodes, then refusals, a voided round, a node down and partial fills on the chain, every balance reconciled; and the two bugs those runs found, now fixed |
 
 A passing test only means something if it can fail. Each defence was switched off, one at a time,
-and a test failed each time: 23 in the first pass, then 27 more
+and a test failed each time: 23 in the first pass, then 28 more
 (`bash scripts/mutate-new.sh`). Both passes found defences with no test that broke exactly that
 rule; each now has one.
 

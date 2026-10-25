@@ -1,0 +1,10 @@
+{
+  "round": 53,
+  "txid": "caa284bc06c7b50b15385c733cd73f85ddfd9fda1bd4e7487a486a5def3cc59c",
+  "height": 58,
+  "block_hash": "55449c179b89876d503cf7885c29adbef4131c3d6a850d4e37ae2d8c7d820b0c",
+  "in_block": true,
+  "confirmations": 1,
+  "raw_bytes": 18641,
+  "raw": "round-53.tx.hex"
+}

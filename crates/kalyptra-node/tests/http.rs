@@ -230,6 +230,20 @@ fn a_restarted_node_reloads_its_share_and_keeps_working() {
     );
 }
 
+/// Stop node `i` and wait until it really refuses requests: a node that is still finishing
+/// would answer, and the test would pass without exercising "one node down".
+fn stop_and_wait_down(c: &mut Cluster, i: usize) {
+    let url = c.roster.nodes[i].url.clone();
+    c.handles[i].take().unwrap().stop();
+    for _ in 0..100 {
+        if client::get::<serde_json::Value>(&format!("{url}/v1/status")).is_err() {
+            return;
+        }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    panic!("node {} still answers after being stopped", i + 1);
+}
+
 #[test]
 fn a_round_opens_closes_and_clears_with_any_one_node_down() {
     let mut c = start(3, 2);
@@ -237,7 +251,7 @@ fn a_round_opens_closes_and_clears_with_any_one_node_down() {
     for (round, down) in [(1u64, 0usize), (2, 2)] {
         // node 1 first: the operator commands used to stop at the first node that did not answer
         let addr = c.handles[down].as_ref().unwrap().addr;
-        c.handles[down].take().unwrap().stop();
+        stop_and_wait_down(&mut c, down);
         client::open_round(&c.roster, round, MARKET, 2).expect("2 of 3 nodes can open a round");
         client::submit_order(&c.roster, round, MARKET, Side::Sell, 5, 3).unwrap();
         client::submit_order(&c.roster, round, MARKET, Side::Buy, 5, 4).unwrap();
@@ -253,8 +267,8 @@ fn a_round_opens_closes_and_clears_with_any_one_node_down() {
         start_again(&mut c, down, addr);
     }
     // with two nodes down, the operator is told plainly
-    c.handles[0].take().unwrap().stop();
-    c.handles[1].take().unwrap().stop();
+    stop_and_wait_down(&mut c, 0);
+    stop_and_wait_down(&mut c, 1);
     let err = client::open_round(&c.roster, 3, MARKET, 2).unwrap_err();
     assert!(err.contains("1 of 3"), "{err}");
 }
@@ -1410,6 +1424,57 @@ esac
         );
         // and the exact remainder is allowed
         assert_eq!(order_in(7, "sell", 12, 3).unwrap()["counted"], true);
+        gw.stop();
+    }
+
+    #[test]
+    fn funds_from_a_finished_round_stay_free_after_every_node_restarts() {
+        use serde_json::json;
+        let mut e = env();
+        let investor = Wallet::new(&e.tool, e.c.dir.join("investor"));
+        let acme = e.assets["ACME"].clone();
+        let vusd = e.assets["vUSD"].clone();
+        let (gw, base) = super::gw::start_gateway(
+            &e.c,
+            vec![("alice", investor)],
+            &[("ACME", &acme), ("vUSD", &vusd)],
+        );
+        // the stand-in wallet holds 42 of every asset; 30 ACME go into a round that is voided
+        let order_in = |round: u64, size: u64| {
+            super::gw::post(
+                &base,
+                &format!("/api/rounds/{round}/orders"),
+                json!({ "market": super::MARKET, "side": "sell", "size": size, "limit": 3 }),
+            )
+        };
+        super::gw::post(
+            &base,
+            "/api/rounds",
+            json!({ "round_id": 8, "market": super::MARKET, "min_orders": 2 }),
+        )
+        .unwrap();
+        assert_eq!(order_in(8, 30).unwrap()["counted"], true);
+        super::gw::post(&base, "/api/rounds/8/close", json!({})).unwrap();
+        super::gw::until("round 8 voided", || {
+            let r = super::gw::get(&base, "/api/rounds/8").ok()?;
+            (r["round"]["phase"] == "voided").then_some(())
+        });
+        // every node restarts: nodes keep rounds in memory, so none of them knows round 8 now
+        for i in 0..3 {
+            let addr = e.c.handles[i].as_ref().unwrap().addr;
+            e.c.handles[i].take().unwrap().stop();
+            super::start_again(&mut e.c, i, addr);
+        }
+        client::wait_for_keys(&e.c.roster, Duration::from_secs(60)).unwrap();
+        // the 30 from the voided round are free again: 40 of the 42 can be sold
+        super::gw::post(
+            &base,
+            "/api/rounds",
+            json!({ "round_id": 9, "market": super::MARKET }),
+        )
+        .unwrap();
+        let r = order_in(9, 40).expect("funds from a voided round are not still reserved");
+        assert_eq!(r["counted"], true);
         gw.stop();
     }
 

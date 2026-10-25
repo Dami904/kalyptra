@@ -72,6 +72,10 @@ struct Inner {
     order_lock: Mutex<()>,
     /// Held while a company is listed (issue, pending record, assets file).
     listing_lock: Mutex<()>,
+    /// Rounds this gateway has seen end (cleared or voided), saved in its home. A final phase
+    /// never changes, and nodes keep rounds only in memory: after they restart, this is how the
+    /// funds check still knows that money in an old round is free again.
+    finals: Mutex<BTreeMap<u64, String>>,
 }
 
 /// The lock name used for the auditor's wallet.
@@ -184,6 +188,42 @@ impl Inner {
     }
 
     /// A round's phase and final record, from the first node that has one.
+    fn finals_path(&self) -> PathBuf {
+        self.home.join("finished-rounds.json")
+    }
+
+    /// Remember a round that has ended. Best effort: if the file cannot be written, the nodes
+    /// are asked again next time (and an unanswered round is still counted as open).
+    fn note_final(&self, round: u64, phase: &str) {
+        if !matches!(phase, "cleared" | "voided") {
+            return;
+        }
+        let mut f = self.finals.lock().unwrap_or_else(|e| e.into_inner());
+        if f.contains_key(&round) {
+            return;
+        }
+        f.insert(round, phase.to_string());
+        if let Err(e) = write_json(&self.finals_path(), &*f, false) {
+            crate::log::event(
+                "warn",
+                "gateway",
+                "remember a finished round",
+                json!({ "round": round, "error": e }),
+            );
+        }
+    }
+
+    /// A round's phase: from what this gateway saw end, or else from the nodes.
+    fn phase_of(&self, round: u64) -> Option<String> {
+        let known = self
+            .finals
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .get(&round)
+            .cloned();
+        known.or_else(|| self.status(round).map(|s| s.phase))
+    }
+
     fn status(&self, round: u64) -> Option<RoundStatusJ> {
         let mut best: Option<RoundStatusJ> = None;
         for url in self.roster.urls() {
@@ -200,6 +240,9 @@ impl Inner {
             if better {
                 best = Some(s);
             }
+        }
+        if let Some(b) = &best {
+            self.note_final(round, &b.phase);
         }
         best
     }
@@ -416,7 +459,7 @@ impl Inner {
             }
             let phase = phases
                 .entry(t.round_id)
-                .or_insert_with(|| self.status(t.round_id).map(|s| s.phase))
+                .or_insert_with(|| self.phase_of(t.round_id))
                 .clone();
             // A round no node will answer for is counted as still open: when unsure, reserve.
             if matches!(phase.as_deref(), Some("cleared" | "voided")) {
@@ -1059,6 +1102,9 @@ pub fn spawn(server: tiny_http::Server, opts: GatewayOptions) -> Result<GatewayH
         safe_id(name).map_err(|_| format!("bad wallet name {name}"))?;
     }
     std::fs::create_dir_all(opts.home.join("tickets")).map_err(|e| e.to_string())?;
+    // a file that exists but cannot be read stops the gateway: guessing would be worse
+    let finals: BTreeMap<u64, String> =
+        read_json_or_default(&opts.home.join("finished-rounds.json"))?;
     let mut busy: BTreeMap<String, Mutex<()>> = opts
         .wallets
         .iter()
@@ -1077,6 +1123,7 @@ pub fn spawn(server: tiny_http::Server, opts: GatewayOptions) -> Result<GatewayH
         busy,
         order_lock: Mutex::new(()),
         listing_lock: Mutex::new(()),
+        finals: Mutex::new(finals),
     });
     let server = Arc::new(server);
     let stop = Arc::new(AtomicBool::new(false));

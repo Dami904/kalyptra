@@ -98,7 +98,7 @@ export function DemoStrip() {
         </table>
 
         <div className="grid content-start gap-3">
-          <div className="rounded-xl bg-wash px-4 py-3">
+          <div className={cx("rounded-xl bg-wash px-4 py-3 transition-[border-color]", stage === 3 ? "border-l-4 border-gold" : "border-l-4 border-transparent")}>
             <p className="eyebrow m-0">Clearing price</p>
             <p className={cx("num m-0 mt-1 text-3xl transition-opacity duration-500", stage === 3 ? "opacity-100" : "opacity-20")}>{stage === 3 ? "5" : "?"}</p>
           </div>

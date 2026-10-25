@@ -1,0 +1,23 @@
+{
+  "threshold": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "url": "http://127.0.0.1:7101",
+      "sign_pk": "3a9f5cc5b9030ba83bf8b89ceb2fc5871e82a2dadaf0722a2dc58e2a8791557b",
+      "dkg_pk": "bce803d180426cf6626fb32681aafc4edfa6479ace7dcdcb9b1339dd6eb59e5b"
+    },
+    {
+      "id": 2,
+      "url": "http://127.0.0.1:7102",
+      "sign_pk": "4d916ef873732feaba792b28da548e342b797e2719c5c8ad488abc7508a13ea7",
+      "dkg_pk": "36306268396140d2e8442ac3fd51694926bca8200c6a42eb2fd8492e9d93d36f"
+    },
+    {
+      "id": 3,
+      "url": "http://127.0.0.1:7103",
+      "sign_pk": "123231e8644f156eb609a727d1b31f870c8d2fbf76df6ee61e2432da4ae1b437",
+      "dkg_pk": "58d5ab720a2b8b9b72f877b30c6d01bc69e67994c84352d856a342a2e08efd4f"
+    }
+  ]
+}

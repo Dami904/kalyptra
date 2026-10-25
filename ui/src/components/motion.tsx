@@ -235,7 +235,8 @@ export function GlyphField({ className }: { className?: string }) {
         const y = cy + Math.sin(p.a) * R * p.r * 0.8;
         const opened = p.open > 0;
         ctx.font = `${opened ? 17 : 15}px "IBM Plex Mono", monospace`;
-        ctx.fillStyle = opened ? `rgba(15,122,67,${0.35 + 0.5 * p.open})` : `rgba(17,17,17,${p.alpha})`;
+        // an opened glyph turns the logo's gold (a deeper shade, to read on the light page)
+        ctx.fillStyle = opened ? `rgba(201,138,0,${0.4 + 0.55 * p.open})` : `rgba(17,17,17,${p.alpha})`;
         ctx.fillText(opened ? p.ch : p.ch, x, y);
       }
     };

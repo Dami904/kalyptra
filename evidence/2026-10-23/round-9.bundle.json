@@ -1,0 +1,295 @@
+{
+  "group": {
+    "pk": "985750072683aea0c8e11c633dd964803882bd860e18a553d527d5ada74f511e",
+    "shares": {
+      "1": "a2f68372de2e401c0b79eeaa435c8a2cc739507bff26be59c39fd05a96fa3b7a",
+      "2": "1c2633e51b1271ea209a02402d9d5f00c02f4ddc12bf32978e8522e9be7c9d4d",
+      "3": "089e079cfaa729a9ef755631d8bd490e73ad18f28819626b3052404572dfe573"
+    },
+    "threshold": 2
+  },
+  "round": {
+    "commit_votes": [
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 1,
+        "round_id": 9,
+        "set": [
+          "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+          "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+          "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409"
+        ],
+        "sig": "8540e884e68428818ce3ad160bec8b3627d21b6ed4c73e50d8cfc20476bbbce2808675669668453caf9a4c9af74126bda328f9aa04349fbb563b8632a97c580c",
+        "voided": false
+      },
+      {
+        "epoch": 0,
+        "min_orders": 2,
+        "node": 2,
+        "round_id": 9,
+        "set": [
+          "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+          "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+          "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409"
+        ],
+        "sig": "4df0e44c714d8b9c2a971d7069369440b52efc4076cb08b9fd2cf98b8f2ac2b600a4ed81933bfb1b841086891c953729bd8d2b1d8aa9929396cb7f5c2a7b180a",
+        "voided": false
+      }
+    ],
+    "config": {
+      "market": "BOLT/vUSD",
+      "min_orders": 2,
+      "round_id": 9
+    },
+    "envelopes": [
+      "00cf82b002b73dc7b93bdebe0822c1b861588f3e84b0b4e20db9893bb3a6ce67712a584fdda5274e63320d322930d1a6f2ff0e92b5f0220f5213e8f92ed11f0d58183696daaf3ea86ce62176c11153cf6de2a4ad296ee3d7d19611483537e6094c59fa7836c3053222de8fc1c5991a37332badd83c34148f19e657d3e9d42b251e1c85bd541d1ec5f864948c27e9949a873c9e2591402bd00f8ea005a73a6c55c0e3a309a9ad0794695c9b01d3730ab490b4ceff1912c5af0685717e30053e15e85319939bfc68b2a331d29543f7960cb5a4d3dffeb3f6221f730cf328a361a31315ec8051d573ace179d3ce2aba58a23a482b6854da2dc9cee3eee91ca8fc5c5bc391ab",
+      "9631a05453030ed939bcd90639435db831b49b69ad19a7ca8e6b1ced59177517fb6d39def43f3275ad2a4456ea15626c3c42300920e2638b65537ae7a44592037351db431f045ab96241521e54ca66e036abffe2d62295f56eb79b7ee1095c0dd4a01d127f3acd7241796bc78101c05ce361aab2d469bd48fa96636e0713a0660c3019ac5490e2c07354c11daf86ed77062177cbdc950a5b2da66c2664d5508aa9b2451db6f43d4e77fd10bc0e71be1a954765d371028f06842178e323a65acd31dde2e17f39cb3a4f45952c23fab2c34811042262056de9d64c5d70958488228fb50361664f88c356a1eebc4b45ae79f9a0c96478fb90cb73a045e2a27b8db5122f53b1",
+      "c289776fb23f44244c6f3dc03704e6a90ba61dd774ab622ac131f9daa8394b33216ed632c099c05f6e72ab829bd1266e2ae706b15389c3dfe2530e75e7042d0aec9de62c2d50a7b184cd84f24d8992a88ecbaa74a22eb519e36a98165466b70aa9d1d1fbafab177d6fd40682d905c592d54e397247242a96d4a86cc35f8f13ea50ae64e97a2c05a2e811a93e27fb873bca340ec163b0567a52c1cac922127e546f6c4652e12dc0f49c91f5345b88b9c24e20d119b36f09652d5cbd2bbeef29942f03a4725fd2d7d620d8dfb32c3f19c238fd0cdaf4e650e4bfc6ab8020ac5d8255a8d27a7e79f5ae95a6bdf7ee8aa7d8257ed4b0b54e91faf90a184c8819930005c8c7b8"
+    ],
+    "partials": [
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "0100d80c2fefcf883e1b6d42e31de567cfbe1100575ed2e64730ff0866a1115e7730f3c1ddc59ba61f10db1df98043c03f73218e6f32799d1d1975986006aceaac0298640a559e338ebd44bf78d7c61ebe40fa7cb954dc5fabb038c83afe0429440b"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "02005477351df7be24f9c1c79fa83223450e99ace1e4b4002fa583ba1d4831619a35fa7058f31e5752ff37b4ce600ba6caa6af2984c97ff03e368a54e089812da10cae7045dac7fad310b6dad0b90b1e5140204f6309c677472fcb25e9cc9989b20a"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "03000efb94f39e463398dab6f1e36c803018b90074e5110a2750e147e3d7af35564e9956b5cf87eb79429ac44bc74caf1e08c6dc66e4f10d48629dbbdbfd3baba404a7f972b2fbe5a264d2744c1de85deb03b8193ce10929515f1ff37686e7993602"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "01001ca7ec49126fb8c0259f66c5980f2e1d13a9a311b5c4bedb6dabea9bff208e58f9319f208c3dd1e33ecdb01349bd0c70da0b793d240a404e70477d767ede730d1454704d9cb608df4aa0be4f04705adfc920e64aca18753cece6612f47f7e701"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "02002c07d1f5366a7961dfa65449c9b84aca56fd6ae53953257a7bf558c0af3441055f5713d92ed84b51c8fb8bd2bd5cce9e0798e44030fa7047d694ff187a69640ff08fab64fcaa82dec3b0c05aa8e2cad5b4013318fdbd4fb2f265dc834b463f04"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "0300fa0668f49842f52669b28553dcb42e8a9ba6235f06b11479d3b3e0cb1874f0490e9159c06694d66612876770e0ab7633c0df685f7230c1dd810b4fe6ba74c802876af0298fb4f8c9f92591b827fb6ec2a5e5b84245616212459e2e19b88c4c08"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "01000e4c04fd096d5ee362c3264d80170fb5ea3358abfee6eba919af8f2476514e2b090edaf8c9f22d3eddd7a6d1f814d27fb004809a9642b232b5cd0295811a680f54894b0e3d10e6d6d89d6c6a0e1abafbc76eb96621a29b78daa7b178c44e3b01"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "020054fcc99e320814f726499b0ac0f8ed9df4b2d71cf8726516524eca935c1caf6fbe908f82200683ae460736757cbeb1855b9b499a8b0bc4aad99ed8d11386070e4de720567a893d589f4dc39035ca267cdb188efa02e8d8a6bb1445ee224ea804"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "03000467c6f18abcb47672ed0ab50013c2c9df7d382663034c14068f406acc7b80313692d6534f03cac68549526b98178dcc0b5a7f1d9d09fbfab2b0c49a6382fd0dea9bf259c122f404557758dd5f57bda45e9184caa76e5fb05e03c2fd116b1e04"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "0100d80c2fefcf883e1b6d42e31de567cfbe1100575ed2e64730ff0866a1115e7730f3c1ddc59ba61f10db1df98043c03f73218e6f32799d1d1975986006aceaac0298640a559e338ebd44bf78d7c61ebe40fa7cb954dc5fabb038c83afe0429440b"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "02005477351df7be24f9c1c79fa83223450e99ace1e4b4002fa583ba1d4831619a35fa7058f31e5752ff37b4ce600ba6caa6af2984c97ff03e368a54e089812da10cae7045dac7fad310b6dad0b90b1e5140204f6309c677472fcb25e9cc9989b20a"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "03000efb94f39e463398dab6f1e36c803018b90074e5110a2750e147e3d7af35564e9956b5cf87eb79429ac44bc74caf1e08c6dc66e4f10d48629dbbdbfd3baba404a7f972b2fbe5a264d2744c1de85deb03b8193ce10929515f1ff37686e7993602"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "01001ca7ec49126fb8c0259f66c5980f2e1d13a9a311b5c4bedb6dabea9bff208e58f9319f208c3dd1e33ecdb01349bd0c70da0b793d240a404e70477d767ede730d1454704d9cb608df4aa0be4f04705adfc920e64aca18753cece6612f47f7e701"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "02002c07d1f5366a7961dfa65449c9b84aca56fd6ae53953257a7bf558c0af3441055f5713d92ed84b51c8fb8bd2bd5cce9e0798e44030fa7047d694ff187a69640ff08fab64fcaa82dec3b0c05aa8e2cad5b4013318fdbd4fb2f265dc834b463f04"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "0300fa0668f49842f52669b28553dcb42e8a9ba6235f06b11479d3b3e0cb1874f0490e9159c06694d66612876770e0ab7633c0df685f7230c1dd810b4fe6ba74c802876af0298fb4f8c9f92591b827fb6ec2a5e5b84245616212459e2e19b88c4c08"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "01000e4c04fd096d5ee362c3264d80170fb5ea3358abfee6eba919af8f2476514e2b090edaf8c9f22d3eddd7a6d1f814d27fb004809a9642b232b5cd0295811a680f54894b0e3d10e6d6d89d6c6a0e1abafbc76eb96621a29b78daa7b178c44e3b01"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "020054fcc99e320814f726499b0ac0f8ed9df4b2d71cf8726516524eca935c1caf6fbe908f82200683ae460736757cbeb1855b9b499a8b0bc4aad99ed8d11386070e4de720567a893d589f4dc39035ca267cdb188efa02e8d8a6bb1445ee224ea804"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "03000467c6f18abcb47672ed0ab50013c2c9df7d382663034c14068f406acc7b80313692d6534f03cac68549526b98178dcc0b5a7f1d9d09fbfab2b0c49a6382fd0dea9bf259c122f404557758dd5f57bda45e9184caa76e5fb05e03c2fd116b1e04"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "0100d80c2fefcf883e1b6d42e31de567cfbe1100575ed2e64730ff0866a1115e7730f3c1ddc59ba61f10db1df98043c03f73218e6f32799d1d1975986006aceaac0298640a559e338ebd44bf78d7c61ebe40fa7cb954dc5fabb038c83afe0429440b"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "02005477351df7be24f9c1c79fa83223450e99ace1e4b4002fa583ba1d4831619a35fa7058f31e5752ff37b4ce600ba6caa6af2984c97ff03e368a54e089812da10cae7045dac7fad310b6dad0b90b1e5140204f6309c677472fcb25e9cc9989b20a"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "partial": "03000efb94f39e463398dab6f1e36c803018b90074e5110a2750e147e3d7af35564e9956b5cf87eb79429ac44bc74caf1e08c6dc66e4f10d48629dbbdbfd3baba404a7f972b2fbe5a264d2744c1de85deb03b8193ce10929515f1ff37686e7993602"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "01001ca7ec49126fb8c0259f66c5980f2e1d13a9a311b5c4bedb6dabea9bff208e58f9319f208c3dd1e33ecdb01349bd0c70da0b793d240a404e70477d767ede730d1454704d9cb608df4aa0be4f04705adfc920e64aca18753cece6612f47f7e701"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "02002c07d1f5366a7961dfa65449c9b84aca56fd6ae53953257a7bf558c0af3441055f5713d92ed84b51c8fb8bd2bd5cce9e0798e44030fa7047d694ff187a69640ff08fab64fcaa82dec3b0c05aa8e2cad5b4013318fdbd4fb2f265dc834b463f04"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "partial": "0300fa0668f49842f52669b28553dcb42e8a9ba6235f06b11479d3b3e0cb1874f0490e9159c06694d66612876770e0ab7633c0df685f7230c1dd810b4fe6ba74c802876af0298fb4f8c9f92591b827fb6ec2a5e5b84245616212459e2e19b88c4c08"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "01000e4c04fd096d5ee362c3264d80170fb5ea3358abfee6eba919af8f2476514e2b090edaf8c9f22d3eddd7a6d1f814d27fb004809a9642b232b5cd0295811a680f54894b0e3d10e6d6d89d6c6a0e1abafbc76eb96621a29b78daa7b178c44e3b01"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "020054fcc99e320814f726499b0ac0f8ed9df4b2d71cf8726516524eca935c1caf6fbe908f82200683ae460736757cbeb1855b9b499a8b0bc4aad99ed8d11386070e4de720567a893d589f4dc39035ca267cdb188efa02e8d8a6bb1445ee224ea804"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "partial": "03000467c6f18abcb47672ed0ab50013c2c9df7d382663034c14068f406acc7b80313692d6534f03cac68549526b98178dcc0b5a7f1d9d09fbfab2b0c49a6382fd0dea9bf259c122f404557758dd5f57bda45e9184caa76e5fb05e03c2fd116b1e04"
+      }
+    ],
+    "receipts": [
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "node": 1,
+        "round_id": 9,
+        "sig": "412a017d1c39a595252f049ca85d3ffbcb74f6c5af86c2d181cbdd3d9f448b74125a1fdd0030b930bf6b118559e863c23e62d1c52232b15bebe8e5c727ecf603"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "node": 2,
+        "round_id": 9,
+        "sig": "fc30159a59b11910193695981bedc8fb1c1832ac45d9bb773dd1315452fb65036caffda436b87ad95d4a17eacfc27beccc2a1cf2cd649051ea7eec14a0fa7f05"
+      },
+      {
+        "envelope": "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "node": 3,
+        "round_id": 9,
+        "sig": "67a8a50a2e57884dd90dafa3e61896217d2c14ed741c681e2788ec9e2204e74dbd6aa85a16a92d94e74f2bb5b0835b221cfbc4c6924c1b8284787804caa6260d"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "node": 1,
+        "round_id": 9,
+        "sig": "debce86ecb4856a9b7883dbfd66255823542a368c8668f7a4b4dd4baa88d837a6252b352bf8e881f17ae6b7cf6b446632387eaeae6d9b4cb7aa88fa81f7fff05"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "node": 2,
+        "round_id": 9,
+        "sig": "a5379dcc2caf55b55798ca5336e4a9a2d9124a458602ae9272afe8bd020ad78edbb34c5396b1c27c9c9d5759e62e8c444853467347d19ff1a51cded5b9111e0f"
+      },
+      {
+        "envelope": "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "node": 3,
+        "round_id": 9,
+        "sig": "1224c50f8bf2bb5f02baa7e410b8dd4f468ba302a3d535cb4703c71949557e491fbb9d905a5ded34932947ec5c74fe9ee52eda30ba30e2418a9a0b501772c60c"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "node": 1,
+        "round_id": 9,
+        "sig": "fe4c8e794b23322302476f24c55ba9149b3812c4492d8b3b3e1b1dbbc5d4ecf156168e762437d3ba78cb0fedfae0b62e86318d621144f8ec7c42f3e76565fa04"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "node": 2,
+        "round_id": 9,
+        "sig": "bb4bc77026796aacfedb3ba512ce15582b37d76a23adfc3974130a939556cb91f81f9094e1bdc2718c491ffa41f017cc8a47b7ba951432fb94fae7b074908000"
+      },
+      {
+        "envelope": "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409",
+        "node": 3,
+        "round_id": 9,
+        "sig": "c437443665cf6ce9f397b903e4c44548218c296bb199e444a44acd75f10b21eca435f7032e2d5e4cbc5a9486d77364f784ecba7d85cd737d1b956bf15a74c605"
+      }
+    ],
+    "record": {
+      "fills": [
+        {
+          "id": 0,
+          "quantity": 4,
+          "side": "sell"
+        },
+        {
+          "id": 1,
+          "quantity": 1,
+          "side": "buy"
+        },
+        {
+          "id": 2,
+          "quantity": 3,
+          "side": "buy"
+        }
+      ],
+      "invalid": [],
+      "market": "BOLT/vUSD",
+      "orders": [
+        [
+          0,
+          {
+            "limit": 4,
+            "owner": "78998c6eb49457d22c17c5043d1a189810809c3f140dc239ac83d0ce2d3336b3",
+            "side": "sell",
+            "size": 4
+          }
+        ],
+        [
+          1,
+          {
+            "limit": 4,
+            "owner": "f741bf36d9bdbf4aad9d0e7760e49fe05bc92fc90c7a0981f5ced56043bee292",
+            "side": "buy",
+            "size": 2
+          }
+        ],
+        [
+          2,
+          {
+            "limit": 5,
+            "owner": "51e2d4ffea821d596427def7583adabc43564019c927f82cbad68d027cd78d3c",
+            "side": "buy",
+            "size": 3
+          }
+        ]
+      ],
+      "price": 4,
+      "round_id": 9,
+      "set": [
+        "2528544c64907a7d7182aa021dd634fcb1ebf8c1b5bc6175207c120100f015bb",
+        "2bdcdae5374c27fb10a85d1e7d84c523cc4bbef38e141b3dd264e98c8c2f8427",
+        "b8b71a6876a0f4ba13abe3fe9cf978b95b1743f83b1ddefb992d1f6ecfc76409"
+      ],
+      "volume": 4
+    },
+    "record_votes": [
+      {
+        "node": 1,
+        "record": "cdc2c5b0364818d4369d2aceaafe2d1f68767fd4dfd527f6c83b9654fbb4752e",
+        "round_id": 9,
+        "sig": "393af1a79fc32a71b00bb5adf389c6c7c528d9310854f7a28a35ceb898fdd4a263698e88830989667fba8fee9525b75706b27fa5ad7227ac36e60f9c70b46205"
+      },
+      {
+        "node": 2,
+        "record": "cdc2c5b0364818d4369d2aceaafe2d1f68767fd4dfd527f6c83b9654fbb4752e",
+        "round_id": 9,
+        "sig": "c7588fca3a8d4be084c08bad6a4999480c6d697de7f615e98245892213002a63bb4ea1e230e9430831c46db4da7b4934b3c4e74b67ee8e7cc28492d6ef01ea08"
+      },
+      {
+        "node": 3,
+        "record": "cdc2c5b0364818d4369d2aceaafe2d1f68767fd4dfd527f6c83b9654fbb4752e",
+        "round_id": 9,
+        "sig": "99fb802a014f0f205c0badcb3a1ef5dc944b4e171eac7f60d6bcb3292d50e83f425e0a9bf95b6b5dd67eba341c88177146936dd3188ed3aa43f06275d013c906"
+      }
+    ]
+  }
+}

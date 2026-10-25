@@ -59,7 +59,7 @@ Landing page hero, then **Launch app**.
 
 > "Who placed each order is never published: every order has its own one-time key, and holdings
 > stay shielded on chain. Only the anonymous orders are opened after the close, so the price can
-> be checked. 153 tests, every defence proven by switching it off, settlement on a real Zcash
+> be checked. 154 tests, every defence proven by switching it off, settlement on a real Zcash
 > regtest chain."
 
 Then say the limit out loud, before a judge finds it: "Today the three nodes run on one machine,

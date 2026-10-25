@@ -17,6 +17,9 @@
   --color-down-bg: #fbeae8;
   --color-warn: #8a5a00;
   --color-warn-bg: #fbf1dc;
+  /* the logo's opened block. Used only for marks and edges where something is opened,
+     never for text on the light background (too little contrast). */
+  --color-gold: #f4b728;
 }
 
 html {
@@ -29,8 +32,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection {
-  background: #111;
-  color: #faf9f6;
+  background: #fbe3a1;
+  color: #111;
 }
 .mono {
   font-family: var(--font-mono);

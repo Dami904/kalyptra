@@ -21,3 +21,7 @@ wallets/
 *.seed
 *keystore*
 *.json.tmp
+
+# local video renders (large; upload the video to YouTube or Loom instead)
+media/
+__pycache__/
