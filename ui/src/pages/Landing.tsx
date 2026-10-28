@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { DemoStrip } from "../components/Demo";
 import { CountUp, GlyphField, Marquee, Reveal, Rotator, useInView } from "../components/motion";
-import { Logo } from "../components/Shell";
+import { GitHubLink, Logo } from "../components/Shell";
+import { REPO, VIDEO } from "../docs/blocks";
 import { Terminal, type Line } from "../components/Terminal";
 import { Button, Card, Chip, cx } from "../components/ui";
 import { USE_MOCK } from "../lib/api";
@@ -37,9 +38,9 @@ const assets = [
 
 const evidence = [
   ["154", "automated tests, passing on every push in CI"],
-  ["44", "defences, each proven needed by switching it off and watching a test fail"],
-  ["4", "protocol holes our own attack tests found, then fixed"],
-  ["3", "separate node processes run a round over the network"],
+  ["51", "defences, each proven needed by switching it off and watching a test fail"],
+  ["1000", "simulated rounds in 9 situations, with nodes failing and restarting"],
+  ["109", "rounds in a row on a real Zcash chain: 83 settled, each verifiable offline"],
 ];
 
 type Seen = "yes" | "no" | "key" | string;
@@ -59,6 +60,8 @@ const status = [
   ["Settlement as one atomic swap", "Live on local regtest", "QEDIT prototype node; not on any public network"],
   ["Auditor view with a viewing key", "Live on local regtest", "Holdings only, cannot spend"],
   ["Listing a company", "Live on local regtest", "Each node signs the symbol-to-asset binding; 2 of 3 make it count"],
+  ["Many rounds on a real chain", "Live on local regtest", "109 in a row in random situations, every price and balance checked; tx ids and bundles in the repo"],
+  ["This website", "Sample data", "A full round in your browser, with a guided tour; it touches no chain"],
 ];
 
 const faq: [string, ReactNode][] = [
@@ -209,10 +212,11 @@ export default function Landing() {
             </a>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link to="/docs" className="mono -my-2 px-2 py-3 text-[13px] text-muted no-underline hover:text-ink md:hidden">
             Docs
           </Link>
+          <GitHubLink label />
           <Link to="/rounds" className="no-underline">
             <Button size="sm">Launch app</Button>
           </Link>
@@ -241,8 +245,8 @@ export default function Landing() {
                 <Button variant="outline">Take the 2-minute tour</Button>
               </Link>
             )}
-            <a href="#how" className="no-underline">
-              <Button variant="outline">How it works</Button>
+            <a href={VIDEO} target="_blank" rel="noreferrer" className="no-underline">
+              <Button variant="outline">▶ Watch the 2-minute video</Button>
             </a>
           </div>
           <dl className="m-0 mt-16 grid max-w-[760px] grid-cols-3 gap-6 border-t border-line pt-6">
@@ -379,7 +383,7 @@ export default function Landing() {
       </Section>
 
       <Section id="evidence" tint>
-        <Head eyebrow="EVIDENCE" title="Built to be attacked, then checked again." lead="We wrote the attacks before trusting the defences, and switched each defence off to prove a test needs it." />
+        <Head eyebrow="EVIDENCE" title="Built to be attacked, then checked again." lead="We wrote the attacks before trusting the defences, switched each defence off to prove a test needs it, then ran it round after round on a real chain." />
         <Reveal>
           <dl className="m-0 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
             {evidence.map(([v, l]) => (
@@ -421,7 +425,7 @@ export default function Landing() {
                 <tr key={a}>
                   <td className="border-t border-line px-5 py-3.5 font-medium">{a}</td>
                   <td className="border-t border-line px-5 py-3.5">
-                    <Chip tone={b === "Live" ? "up" : b === "Local" ? "warn" : "neutral"}>{b}</Chip>
+                    <Chip tone={b === "Live" ? "up" : b === "Sample data" ? "warn" : "neutral"}>{b}</Chip>
                   </td>
                   <td className="border-t border-line px-5 py-3.5 text-muted">{c}</td>
                 </tr>
@@ -461,10 +465,34 @@ export default function Landing() {
       </Section>
 
       <footer className="border-t border-line bg-card">
-        <div className="mx-auto grid max-w-[1180px] gap-10 px-6 py-12 md:grid-cols-[1.3fr_1fr]">
-          <div>
+        <div className="mx-auto grid max-w-[1180px] gap-10 px-6 py-12 sm:grid-cols-2 md:grid-cols-[1.3fr_1fr_1fr]">
+          <div className="sm:col-span-2 md:col-span-1">
             <Logo />
             <p className="m-0 mt-4 max-w-[340px] text-sm leading-relaxed text-muted">Sealed-bid auctions for private company shares on Zcash Shielded Assets. Built for the Zecathon, Private Markets track.</p>
+            <GitHubLink label className="-ml-2 mt-4" />
+          </div>
+          <div>
+            <p className="eyebrow m-0 mb-3">PROJECT</p>
+            <ul className="m-0 grid list-none gap-2 p-0 text-sm">
+              {[
+                [VIDEO, "The 2-minute video"],
+                [REPO, "Source code"],
+                [`${REPO}/blob/main/docs/EVIDENCE.md`, "Evidence: the chain runs"],
+                [`${REPO}/blob/main/ATTACKS.md`, "Every attack, and its test"],
+                [`${REPO}/blob/main/docs/LIMITATIONS.md`, "Limitations"],
+              ].map(([href, l]) => (
+                <li key={href}>
+                  <a href={href} target="_blank" rel="noreferrer" className="text-muted no-underline hover:text-ink">
+                    {l} ↗
+                  </a>
+                </li>
+              ))}
+              <li>
+                <Link to="/docs" className="text-muted no-underline hover:text-ink">
+                  Docs
+                </Link>
+              </li>
+            </ul>
           </div>
           <div>
             <p className="eyebrow m-0 mb-3">APP</p>

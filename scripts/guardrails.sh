@@ -26,7 +26,9 @@ code_files() {
 
 # 1. every URL is loopback, one of the hosts the build downloads from, or this project's repo.
 #    Tests may also name a host under `.example` (reserved by RFC 2606: it never resolves).
-allowed='^https?://(127\.0\.0\.1|localhost|\[::1\]|[a-z0-9.-]+\.example)([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation|github\.com/Dami904/kalyptra)(/|$)'
+#    The docs page may also link (for a reader to open, never for code to call) this project's
+#    video and the two installers its setup guide names: rustup and nvm.
+allowed='^https?://(127\.0\.0\.1|localhost|\[::1\]|[a-z0-9.-]+\.example)([:/]|$)|^https://(download\.z\.cash|github\.com/QED-it|github\.com/ZcashFoundation|github\.com/Dami904/kalyptra)(/|$)|^https://(youtu\.be/tFmisu23AHM|sh\.rustup\.rs|github\.com/nvm-sh/nvm)$'
 urls=$(code_files | xargs grep -noE 'https?://[^ "'"'"'`)<>{}\\]+' 2>/dev/null |
   awk -F: '{ url=$0; sub(/^[^:]*:[^:]*:/, "", url); print $1":"$2" "url }' |
   while read -r where url; do

@@ -7,7 +7,7 @@ counter on the form).
 - **Track:** Private Markets
 - **Code repository:** https://github.com/Dami904/kalyptra
 - **Working demo:** https://kalyptra.vercel.app
-- **Demo video (2 minutes):** _to add_
+- **Demo video (2 minutes):** <https://youtu.be/tFmisu23AHM>
 - **Tick:** the repository will be public by the deadline (it is public already).
 
 ## Description

@@ -1,12 +1,11 @@
 import { useEffect, useRef } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { REPO } from "../docs/blocks";
 import { USE_MOCK, api, usePoll } from "../lib/api";
 import { clearActor, getActor, setActor } from "../lib/real";
 import { TourNudge } from "./TourNudge";
 import { Chip, cx } from "./ui";
 
-/// Sealed, then opened: three blocks, two still sealed and one opened to show the price. It is
-/// the same picture as the sealed-glyph animation on the landing page.
 /// The square mark (favicon, avatars, small spaces): a dark tile, two sealed blocks, and one
 /// opened block in gold. Gold means "opened" everywhere in the page.
 export function LogoMark({ className }: { className?: string }) {
@@ -39,6 +38,26 @@ export function Logo({ light }: { light?: boolean }) {
       <LogoWide light={light} className="hidden h-6 w-auto shrink-0 sm:block" />
       <span className="text-[18px] font-medium sm:text-[20px] tracking-tight text-ink">Kalyptra</span>
     </Link>
+  );
+}
+
+/// The source code: an icon button in headers, with the word beside it from `sm` up when
+/// `label` is set. To hide it on phones, wrap it: its own `inline-flex` would beat `hidden`.
+export function GitHubLink({ label, className }: { label?: boolean; className?: string }) {
+  return (
+    <a
+      href={REPO}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Source code on GitHub"
+      title="Source code on GitHub"
+      className={cx("mono inline-flex shrink-0 items-center gap-2 rounded-lg p-2 text-[13px] text-muted no-underline hover:text-ink", className)}
+    >
+      <svg viewBox="0 0 16 16" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden="true">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+      </svg>
+      {label && <span className="hidden sm:inline">GitHub</span>}
+    </a>
   );
 }
 
@@ -90,8 +109,10 @@ function ActingAs() {
   const current = getActor() && names.includes(getActor()!) ? getActor()! : (data?.default ?? names[0]!);
   return (
     <label className="flex items-center gap-2">
-      <span className="eyebrow hidden sm:inline">Acting as</span>
+      {/* the words give way when the header is one row (xl), where the tabs need the room */}
+      <span className="eyebrow hidden sm:inline xl:hidden">Acting as</span>
       <select
+        aria-label="Acting as"
         value={current}
         onChange={(e) => {
           setActor(e.target.value);
@@ -160,6 +181,9 @@ export function AppShell() {
               </Chip>
             )}
             <Health />
+            <span className="-mr-2 hidden sm:block">
+              <GitHubLink />
+            </span>
           </div>
         </div>
       </header>

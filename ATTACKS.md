@@ -84,6 +84,7 @@ Each row is something a cheater tries, who or what stops it, and the test that p
 | A node answers a listing with a signature from the wrong key | Not counted: every signature is checked against the roster | `a_listing_signature_that_does_not_verify_is_not_counted` |
 | A web page from another site, open in the investor's browser, reads their open orders (side, size, limit) from the gateway on `127.0.0.1`, or places, closes or settles orders | Prevented: no CORS header is ever sent, and a request whose `Origin` is another site is refused (403), preflight included | `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` |
 | The same through DNS rebinding (another site's name pointed at `127.0.0.1`, so the browser treats it as same-origin) | Prevented: a request whose `Host` is not this machine is refused | `a_web_page_from_another_site_cannot_read_or_drive_the_gateway` |
+| Every node restarts and forgets a finished round, so its funds look committed forever (found on the chain, round 24 of the 109) | Prevented: the gateway saves each round's final phase the first time it sees it, and uses that when no node remembers the round | `funds_from_a_finished_round_stay_free_after_every_node_restarts` |
 
 ## The checker itself
 
@@ -107,6 +108,12 @@ The first pass found **six defences no test exercised**: the record comparison o
 ### Second run (2026-10-15)
 
 The defences added on 2026-10-15 were checked the same way, with `scripts/mutate-new.sh`: **all 21 are load-bearing.** They are the re-vote rule (voting again only when the earlier epoch is dead), the epoch cap, the checker's premature re-vote and second-final-commit findings, the epoch being part of what a node signs, the funds check, counting funds already committed, costing a buy as size times limit, the two listing conflicts, verifying listing signatures, the gateway refusing a non-loopback address, a damaged pending file not being read as empty, the checker catching a skipped epoch, orders being serialised, a wallet-tool crash counting as "unknown" rather than "failed", only the leader retrying a settlement, only the node's own "Block rejected" counting as "nothing moved", a rejection after an unknown attempt staying unknown, an unreadable ticket stopping new orders, and an order's ticket being kept unless every node refused it. The first pass again found gaps: three of the first eleven had no test that broke exactly that rule. Each now has one.
+
+### Third run (2026-10-22 to 25)
+
+The defences added while running rounds on the real chain went into the same script, which now holds **28, all load-bearing** (23 + 28 = 51 in all). The seven new ones: the gateway refusing another site's page (by `Origin`) and a request for another host name (DNS rebinding), operator commands needing `t` nodes rather than all of them, the backup taking over a round whose leader never saw it, the backup leaving a live leader alone, the most advanced settlement view winning across nodes, and the gateway remembering rounds it saw finish so their funds stay free after every node restarts.
+
+The script now also insists that cargo really rebuilt the mutated crate before it believes a result. On a Windows drive under WSL, cargo sometimes missed the edit and tested the old build, which read as "survived"; such a run is now reported as "not rebuilt", never as a pass or a survivor.
 
 ## What is NOT stopped
 

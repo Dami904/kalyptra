@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { LogoMark, LogoWide } from "../components/Shell";
+import { GitHubLink, LogoMark, LogoWide } from "../components/Shell";
 import { Button, cx } from "../components/ui";
 import { DOC_PAGES, docGroups, docHref, findDocPage, type DocPage } from "../docs/content";
-import { REPO } from "../docs/blocks";
+import { REPO, VIDEO } from "../docs/blocks";
 
 /* /docs: a three-column docs layout. Grouped pages on the left, the article in the middle,
    "On this page" on the right, previous/next at the bottom, and Ctrl/Cmd+K search. */
@@ -153,6 +153,9 @@ export default function Docs() {
             <span className="hidden sm:inline">Search</span>
             <kbd className="hidden rounded border border-line px-1.5 text-[11px] sm:inline">Ctrl K</kbd>
           </button>
+          <span className="hidden sm:block">
+            <GitHubLink />
+          </span>
           <button type="button" onClick={() => setMenu((v) => !v)} aria-expanded={menu} className="mono cursor-pointer rounded-lg border border-line px-3 py-2 text-[12.5px] sm:py-1.5 lg:hidden">
             {menu ? "Close" : "Menu"}
           </button>
@@ -175,6 +178,9 @@ export default function Docs() {
           ))}
           <a href={REPO} className="mono text-[12.5px]">
             Source on GitHub ↗
+          </a>
+          <a href={VIDEO} className="mono mt-2 block text-[12.5px]">
+            The 2-minute video ↗
           </a>
         </aside>
 

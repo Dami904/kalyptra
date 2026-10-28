@@ -449,9 +449,9 @@ These run in CI against the local regtest node where possible, and as pure logic
 | Oct 13-16 | `kalyptra-tse` library: DKG, encryption, partial decryption with DLEQ, combination, test vectors, property tests | **G1 (Oct 16): library done and reviewed Oct 9**; the freed time moves to the matcher node |
 | Oct 17-19 | Matcher node: bulletin board, receipts, round state machine, close, threshold decrypt, clearing, co-signed record; three nodes locally | A full sealed round runs end to end without settlement. **Done Oct 9, in-process and over HTTP** |
 | Oct 20-21 | Settlement through ZSA swaps; auditor view | **G2 (Oct 21): PASSED Oct 9** |
-| Oct 22-23 | Checker and the adversarial suite | All cases caught, tests in CI. **Done Oct 9** (CI configured 2026-10-15 in `.github/workflows/ci.yml`; not yet run on GitHub) |
-| Oct 24-25 | UI and a reproducible `docker compose up` with three matcher containers | A stranger can run it from the README |
-| Oct 26 | README, spec, trust and limits tables, 2-minute video | Everything in draft |
+| Oct 22-23 | Checker and the adversarial suite | All cases caught, tests in CI. **Done Oct 9** (CI in `.github/workflows/ci.yml`, green on GitHub since 2026-10-16) |
+| Oct 24-25 | UI and a reproducible run | A stranger can run it from the README. **Done:** `scripts/run.sh` instead of `docker compose` (three node processes, the chain in Docker), with a step-by-step guide on the docs site |
+| Oct 26 | README, spec, trust and limits tables, 2-minute video | Everything in draft. **Done Oct 25**, video at <https://youtu.be/tFmisu23AHM> |
 | Oct 27-28 | Buffer; repo public; final submission | Submitted before Oct 28 23:59 UTC |
 
 ## Fallbacks
@@ -480,6 +480,13 @@ Four of the known limits are closed.
 - The new re-vote path is proven in-process (the matcher's network of nodes). The HTTP nodes call it, but a divergence race over real HTTP is not forced by a test.
 - Late receipts: a node that re-votes before a peer's receipt has reached it just joins a further epoch; the receipts only ever grow, so it converges, but there is no timer.
 
+## Hardening and evidence on the real chain (2026-10-21 to 25)
+
+- **Rounds on the real chain.** `scripts/soak_chain.py` drives the gateway as the page does. 11 scenario rounds (2026-10-21), then 109 in a row in random situations (2026-10-23): every price matched an independent computation, every public check was clean, every balance reconciled, 83 settled in one transaction each, and every round verifies offline. Proof, with transaction ids: `evidence/`, explained in `docs/EVIDENCE.md`.
+- **What those runs found, each fixed with a test:** operator commands stopping at the first node down; a round whose settlement leader never saw it; a takeover resubmitting a settled round (crashed the regtest node); the wallet tool reading zero balances after a missed RPC answer; funds from finished rounds staying reserved after every node restarted; a test that closed before receipts arrived on a loaded machine. Full table: `docs/EVIDENCE.md` section 4.
+- **A gateway hole closed** after reading a similar project: another site's page in the investor's browser could read open orders (CORS `*`). Now refused by `Origin` and `Host`.
+- **Workspace: 154 tests**, 51 defences each proven needed by switching it off (`ATTACKS.md`), 47 of 47 vectors re-derived, CI green.
+
 ## Stretch goals (only after G2)
 
 - L3: a drand timelock backup so orders decrypt at a set time even if the committee fails.
@@ -493,9 +500,9 @@ Four of the known limits are closed.
 3. **Name:** Kalyptra. Yes.
 4. **Internal cutoff Oct 26**, with Oct 27-28 only as buffer. Yes.
 
-- **Renamed Vibru to Kalyptra (2026-10-13).** From the Greek *kalyptra*, a veil: what conceals. Everything was renamed, including the protocol's domain-separation strings, so the known-answer vectors moved to v3 and were re-checked independently (47 of 47). `spike/` keeps the old name as recorded evidence. Logo: the clearing point (two lines meeting at one price).
+- **Renamed Vibru to Kalyptra (2026-10-13).** From the Greek *kalyptra*, a veil: what conceals. Everything was renamed, including the protocol's domain-separation strings, so the known-answer vectors moved to v3 and were re-checked independently (47 of 47). `spike/` keeps the old name as recorded evidence. Logo (first): the clearing point (two lines meeting at one price). Replaced on 2026-10-24 by three blocks, two sealed and one opened in gold; gold marks "opened" across the page.
 
 ## Still to decide
 
 1. **Licence:** MIT, chosen 2026-10-15 (`LICENSE`). Still to do: ask QEDIT to add the LICENSE file their README promises, since the patch modifies their code.
-2. **Where the repo lives** (for example a private GitHub repo under `Dami904`, made public by Oct 28).
+2. **Where the repo lives:** decided, <https://github.com/Dami904/kalyptra>, public, with the page deployed from it to <https://kalyptra.vercel.app>.

@@ -448,19 +448,171 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
     description: "Three nodes, a Zcash regtest chain, wallets and the page, on your own machine.",
     sections: [
       {
+        id: "first",
+        title: "Before you start",
+        body: (
+          <>
+            <P>
+              Two quicker ways come first. To see the page, use this site: it runs a whole round in your browser on sample data. To see the protocol itself, run <C>bash scripts/demo.sh</C>: three node processes, a whole round and an offline check in about a minute, with only Rust installed. The full system below is for settling on a real chain, and the first start takes about 45 minutes.
+            </P>
+            <Note title="Everything runs on your machine">
+              A throwaway local Zcash regtest chain, three nodes, wallets and the gateway. Nothing connects to a public network, no real funds exist, and stopping it removes the chain.
+            </Note>
+          </>
+        ),
+      },
+      {
         id: "requirements",
         title: "Requirements",
-        body: <P>Linux or WSL, with Docker, Rust 1.85 or newer, and Node 20.19 or newer.</P>,
+        body: (
+          <>
+            <Table
+              head={["You need", "Why"]}
+              rows={[
+                ["Linux, or Windows with WSL", "The scripts are bash. Tested on WSL Ubuntu 24.04."],
+                ["Docker", "Runs the regtest chain (QEDIT's swap-enabled Zebra)."],
+                ["Rust 1.85 or newer", "Builds the nodes, the gateway and the wallet tool."],
+                ["Node 20.19 or newer, with npm", "Builds the page."],
+                ["git, python3, curl", "Used by the setup and run scripts."],
+                [<>a C compiler, pkg-config, libssl-dev, libsqlite3-dev</>, "Needed to build QEDIT's wallet tool."],
+                ["About 20 GB of free disk", "The chain's Docker image is about 6 GB, plus its build cache and two Rust builds."],
+                ["Memory", "It was built and run with 8 cores and 7 GB of memory given to WSL. Less may work, more slowly."],
+              ]}
+            />
+            <P>On Ubuntu or Debian, everything but Docker, Rust and Node in one line:</P>
+            <Code>{`sudo apt update && sudo apt install -y build-essential git curl python3 pkg-config libssl-dev libsqlite3-dev`}</Code>
+            <P>
+              The ports <C>7101</C> to <C>7103</C> (nodes), <C>8787</C> (the page) and <C>18232</C> (the chain) must be free.
+            </P>
+          </>
+        ),
+      },
+      {
+        id: "windows",
+        title: "On Windows",
+        body: (
+          <Steps
+            items={[
+              <>
+                In PowerShell as administrator: <C>wsl --install -d Ubuntu</C>, then restart and open <B>Ubuntu</B> from the Start menu.
+              </>,
+              <>
+                Install <B>Docker Desktop</B>, and in its settings turn on <B>Resources → WSL integration</B> for Ubuntu. Check it from Ubuntu with <C>docker run --rm hello-world</C>.
+              </>,
+              <>
+                In Ubuntu: <C>sudo apt update && sudo apt install -y build-essential git curl python3 pkg-config libssl-dev libsqlite3-dev</C>. On a brand-new Ubuntu, apt may say another process holds its lock: Ubuntu is updating itself; wait a few minutes and run it again.
+              </>,
+              <>
+                Rust: <C>curl https://sh.rustup.rs -sSf | sh</C>, then open a new terminal.
+              </>,
+              <>
+                Node 20 or newer, for example through <a href="https://github.com/nvm-sh/nvm">nvm</a>: <C>nvm install 22</C>.
+              </>,
+              <>Clone the repository inside Ubuntu (your Linux home folder, not <C>/mnt/c</C>): builds there are much faster.</>,
+            ]}
+          />
+        ),
       },
       {
         id: "start",
         title: "Start it",
         body: (
-          <Code>{`git clone ${REPO}
+          <>
+            <Code>{`git clone ${REPO}
 cd kalyptra
 bash settlement/setup.sh   # once: QEDIT's Zebra image and the patched wallet tool (20-30 min)
 bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20 min to start)
 # then open http://127.0.0.1:8787`}</Code>
+            <P>
+              <C>run.sh</C> prints each stage as it goes: <B>1.</B> a fresh regtest chain, <B>2.</B> one wallet per party, <B>3.</B> the assets issued and the investors funded, <B>4.</B> three matcher nodes, <B>5.</B> the gateway and the page. Stages 2 and 3 are the slow ones and can sit quiet for minutes: every wallet command rescans the chain, which is how the regtest prototype works. It is ready when it prints <B>Kalyptra is running</B> with a table of who holds what.
+            </P>
+          </>
+        ),
+      },
+      {
+        id: "first-round",
+        title: "Your first round",
+        body: (
+          <>
+            <P>
+              A round of ACME/vUSD is already open. Use the <B>Acting as</B> switch in the header to be each investor in turn:
+            </P>
+            <Steps
+              items={[
+                <>Trade, as alice: sell 10 at 4. As bob: sell 4 at 5. As carol: buy 8 at 6. As dave: buy 6 at 5.</>,
+                <>Rounds: close round 1. It clears at 5, volume 14, and the public check passes.</>,
+                <>Trade, as each of the four in turn: Settle. Once all four parts are in, one transaction settles the round.</>,
+                <>Portfolio: the balances moved. Audit: paste an investor's viewing key to see their holdings, read-only.</>,
+              ]}
+            />
+            <P>
+              To see a refusal, sell more ACME than the investor holds. As issuer, <B>List a company</B> issues a new token and has the nodes sign its listing.
+            </P>
+          </>
+        ),
+      },
+      {
+        id: "verify",
+        title: "Check a round yourself",
+        body: (
+          <>
+            <P>
+              In a second terminal, from the run folder. The <C>kalyptra</C> program was built by <C>run.sh</C> in the repository's <C>target/release</C>:
+            </P>
+            <Code>{`cd ~/kalyptra-run
+K=~/kalyptra/target/release/kalyptra      # where you cloned the repository
+$K keys                                   # prints the group key the nodes announced
+$K check --round 1                        # recompute the round from the nodes' public data
+$K export --round 1 --out round-1.json    # save the round to one file
+$K verify --bundle round-1.json --group-key <the key above>   # offline: no node, no network`}</Code>
+            <P>Change the price in the saved file and verify again: it fails, and names the field.</P>
+          </>
+        ),
+      },
+      {
+        id: "many-rounds",
+        title: "Run many rounds on the chain",
+        body: (
+          <>
+            <P>
+              With the system running, <C>scripts/soak_chain.py</C> drives rounds through the gateway exactly as the page does, each in a different situation (refused orders, voided rounds, ties, a node down, nodes restarted, new companies listed). It checks every price against its own computation and reconciles every balance after every round. This is how the evidence in the repository was made.
+            </P>
+            <Code>{`python3 scripts/soak_chain.py                       # the fixed scenarios
+python3 scripts/soak_chain.py --random 30           # then 30 rounds in random situations
+python3 scripts/soak_chain.py --random 30 --evidence evidence/my-run   # keep checkable proof`}</Code>
+            <P>
+              Expect about a minute per round. It stops and restarts nodes, so run it only against the system <C>run.sh</C> started. See <a href={`${REPO}/blob/main/docs/EVIDENCE.md`}>EVIDENCE.md</a> for what a run looks like.
+            </P>
+          </>
+        ),
+      },
+      {
+        id: "stop",
+        title: "Stop and clean up",
+        body: (
+          <P>
+            Press <B>Ctrl-C</B> in the terminal running <C>run.sh</C>. It stops the nodes and the gateway and removes the chain's Docker container (<C>kalyptra-regtest</C>). The run folder, <C>~/kalyptra-run</C>, keeps the logs and wallets until the next <C>run.sh</C> starts afresh. The Docker image and the built tool stay, so later starts skip <C>setup.sh</C>.
+          </P>
+        ),
+      },
+      {
+        id: "troubleshooting",
+        title: "If something goes wrong",
+        body: (
+          <Table
+            head={["You see", "Do this"]}
+            rows={[
+              [<>apt says it is unable to acquire the dpkg lock</>, "A fresh Ubuntu updates itself in the background for a few minutes after its first start. Wait, then run the apt line again."],
+              [<C>missing: docker</C>, "Install it, or (on Windows) turn on Docker Desktop's WSL integration. The same message names cargo, npm or python3 when one of them is missing."],
+              [<C>no wallet tool at …</C>, <>Run <C>bash settlement/setup.sh</C> first.</>],
+              [<><C>setup.sh</C> stops on a download error (for example <C>short read</C> or <C>unexpected EOF</C>)</>, <>The network dropped while Docker or git was downloading. Run <C>bash settlement/setup.sh</C> again: it keeps what is already done. If the same download keeps failing, fetch the chain's base image on its own first, <C>docker pull rust:1.81.0</C>, then run <C>setup.sh</C> again.</>],
+              [<>Cannot connect to the Docker daemon</>, "Start Docker Desktop (or the docker service) and run again."],
+              [<>A port is already in use</>, <>An earlier run is still up: stop it, or <C>docker rm -f kalyptra-regtest</C>. Ports 7101-7103, 8787 and 18232 must be free.</>],
+              [<>Nothing printed for minutes</>, <>Normal in stages 2 and 3. Watch <C>~/kalyptra-run/wallet.log</C>. One wallet command may take up to <C>KALYPTRA_TOOL_TIMEOUT_SECS</C> (900 s).</>],
+              [<>The page says Gateway offline</>, <>Read <C>~/kalyptra-run/gateway.log</C>; the nodes log to <C>node-1.log</C> to <C>node-3.log</C> there.</>],
+              [<>Settlement shows failed or unknown</>, <>A real state, not a crash. Press <B>Try the settlement again</B>: a retry is safe, because the chain refuses to spend the same notes twice.</>],
+            ]}
+          />
         ),
       },
       {
@@ -642,7 +794,13 @@ bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20
               <B>47 known-answer vectors</B> re-derived by a separate Python and libsodium implementation.
             </li>
             <li>
-              <B>On a real Zcash regtest chain:</B> one-transaction settlement with exact balances, failed and unknown outcomes and safe retry, a node-signed listing.
+              <B>1,000 simulated rounds</B> in 9 situations (refused and voided rounds, ties, a node down, nodes restarted), every price and fill checked against a separate computation.
+            </li>
+            <li>
+              <B>109 rounds in a row on a real Zcash regtest chain,</B> each in a random situation: 83 settled in one transaction each, every price, public check and balance confirmed, every round verified offline. The transaction ids and saved rounds are in <a href={`${REPO}/tree/main/evidence`}>evidence/</a>, walked through in <a href={`${REPO}/blob/main/docs/EVIDENCE.md`}>EVIDENCE.md</a>.
+            </li>
+            <li>
+              <B>On that chain:</B> one-transaction settlement with exact balances, failed and unknown outcomes and safe retry, a node-signed listing.
             </li>
           </Ul>
         ),

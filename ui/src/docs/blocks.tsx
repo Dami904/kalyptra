@@ -113,3 +113,4 @@ export function Cards({ items }: { items: { to: string; title: string; text: str
 }
 
 export const REPO = "https://github.com/Dami904/kalyptra";
+export const VIDEO = "https://youtu.be/tFmisu23AHM";

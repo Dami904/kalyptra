@@ -57,7 +57,10 @@ What is explicitly NOT handled. Dates are when each was last checked against the
   round. See [`THREAT_MODEL.md`](THREAT_MODEL.md).
 - **Late receipts.** A node that votes again before a peer's receipts reach it simply joins a
   further epoch; receipts only grow, so it converges, but there is no timer. The re-vote path is
-  tested in-process, and not forced over real HTTP by a test.
+  tested in-process, and not forced over real HTTP by a test. With one node **down**, two live
+  nodes that closed on different receipts cannot prove the first vote dead (the missing node
+  could still tip it), so the round waits until that node is back. Closing once every order is
+  receipted, as a round with a set closing time does, avoids it.
 - **Salt grinding at equal prices.** Pro-rata allocation would remove it; not built.
 - **Plain HTTP** between nodes and for the gateway. Fine on loopback, not elsewhere.
 - **Not audited.** AI review only.

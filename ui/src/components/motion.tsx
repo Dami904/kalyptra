@@ -71,7 +71,7 @@ export function CountUp({ to, duration = 1300, className }: { to: number; durati
   }, [seen, to, duration, reduced]);
   return (
     <span ref={ref} className={className}>
-      {seen ? n : 0}
+      {seen ? n.toLocaleString("en-US") : 0}
     </span>
   );
 }
