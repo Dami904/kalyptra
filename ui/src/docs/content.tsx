@@ -453,7 +453,7 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
         body: (
           <>
             <P>
-              Two quicker ways come first. To see the page, use this site: it runs a whole round in your browser on sample data. To see the protocol itself, run <C>bash scripts/demo.sh</C>: three node processes, a whole round and an offline check in about a minute, with only Rust installed. The full system below is for settling on a real chain, and the first start takes about 45 minutes.
+              Two quicker ways come first. To see the page, use this site: it runs a whole round in your browser on sample data. To see the protocol itself, run <C>bash scripts/demo.sh</C>: three node processes, a whole round and an offline check in about a minute, with only Rust installed. The full system below is for settling on a real chain, and the first start takes up to about an hour and a half: most of it is compiling Zebra, once.
             </P>
             <Note title="Everything runs on your machine">
               A throwaway local Zcash regtest chain, three nodes, wallets and the gateway. Nothing connects to a public network, no real funds exist, and stopping it removes the chain.
@@ -475,7 +475,7 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
                 ["Node 20.19 or newer, with npm", "Builds the page."],
                 ["git, python3, curl", "Used by the setup and run scripts."],
                 [<>a C compiler, pkg-config, libssl-dev, libsqlite3-dev</>, "Needed to build QEDIT's wallet tool."],
-                ["About 20 GB of free disk", "The chain's Docker image is about 6 GB, plus its build cache and two Rust builds."],
+                ["About 20 GB of free disk", "The chain's Docker image is about 8 GB, plus its build cache and two Rust builds."],
                 ["Memory", "It was built and run with 8 cores and 7 GB of memory given to WSL. Less may work, more slowly."],
               ]}
             />
@@ -520,8 +520,8 @@ kalyptra verify --bundle round-1.json --group-key <the announced key>`}</Code>
           <>
             <Code>{`git clone ${REPO}
 cd kalyptra
-bash settlement/setup.sh   # once: QEDIT's Zebra image and the patched wallet tool (20-30 min)
-bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (15-20 min to start)
+bash settlement/setup.sh   # once: QEDIT's Zebra image and the patched wallet tool (30-70 min)
+bash scripts/run.sh        # chain, wallets, assets, three nodes, gateway (5-20 min to start)
 # then open http://127.0.0.1:8787`}</Code>
             <P>
               <C>run.sh</C> prints each stage as it goes: <B>1.</B> a fresh regtest chain, <B>2.</B> one wallet per party, <B>3.</B> the assets issued and the investors funded, <B>4.</B> three matcher nodes, <B>5.</B> the gateway and the page. Stages 2 and 3 are the slow ones and can sit quiet for minutes: every wallet command rescans the chain, which is how the regtest prototype works. It is ready when it prints <B>Kalyptra is running</B> with a table of who holds what.

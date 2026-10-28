@@ -352,7 +352,7 @@ ATTACKS.md  PLAN.md   attack catalogue; design, progress and decisions
 The step-by-step guide, with Windows (WSL) setup, your first round, checking a round yourself, running many rounds on the chain and what to do when something goes wrong: **[Run the real system](https://kalyptra.vercel.app/docs/run-the-real-system)**.
 
 ```bash
-bash settlement/setup.sh   # once: builds the Zebra image and the patched wallet tool (about 20-30 min)
+bash settlement/setup.sh   # once: builds the Zebra image and the patched wallet tool (30-70 min; most of it compiles Zebra)
 bash scripts/run.sh        # the whole app: chain, wallets, assets, three nodes, gateway
 ```
 
