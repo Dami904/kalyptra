@@ -36,6 +36,10 @@ reports the price. Anyone can recompute it.
 
 **Video (2 minutes): <https://youtu.be/tFmisu23AHM>**: the problem, the idea, and a real round on a Zcash regtest chain, from sealed orders to settlement.
 
+
+https://github.com/user-attachments/assets/dd0da955-e1e6-4183-8242-464ddb2fc683
+
+
 **Live: <https://kalyptra.vercel.app>**
 
 The page has a **sample-data mode**: no nodes, no chain, nothing to install on a server. It runs the whole
